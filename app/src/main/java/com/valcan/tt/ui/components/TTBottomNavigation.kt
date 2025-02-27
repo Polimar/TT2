@@ -2,6 +2,9 @@ package com.valcan.tt.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -12,12 +15,21 @@ import com.valcan.tt.ui.navigation.Screen
 fun TTBottomNavigation(
     navController: NavController
 ) {
-    NavigationBar {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.primary
+    ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
 
         NavigationBarItem(
-            icon = { Icon(painter = painterResource(R.drawable.ic_home), contentDescription = null) },
+            icon = { 
+                Icon(
+                    painter = painterResource(R.drawable.ic_home_kawaii),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
             label = { Text("Home") },
             selected = currentRoute == Screen.Home.route,
             onClick = { navController.navigate(Screen.Home.route) }
