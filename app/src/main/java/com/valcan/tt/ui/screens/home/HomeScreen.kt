@@ -1,40 +1,46 @@
 package com.valcan.tt.ui.screens.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.valcan.tt.R
+import com.valcan.tt.data.repository.UserRepository
+import com.valcan.tt.data.repository.ClothesRepository
+import com.valcan.tt.data.repository.ShoesRepository
 import com.valcan.tt.ui.components.TTBottomNavigation
-import com.valcan.tt.ui.navigation.Screen
-import androidx.compose.material3.ExperimentalMaterial3Api
+import com.valcan.tt.ui.theme.Typography
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.valcan.tt.ui.viewmodel.HomeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val statistics by viewModel.statistics.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState(initial = null)
+    val totalClothes by viewModel.totalClothes.collectAsState(initial = 0)
+    val totalShoes by viewModel.totalShoes.collectAsState(initial = 0)
+
+    // Debug: stampiamo il valore di currentUser
+    LaunchedEffect(currentUser) {
+        println("DEBUG: Current user in HomeScreen: $currentUser")
+    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("TrendyTracker") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        },
-        bottomBar = { TTBottomNavigation(navController) }
+        bottomBar = { TTBottomNavigation(navController = navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -43,81 +49,87 @@ fun HomeScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Titolo centrato
             Text(
-                text = "Il tuo guardaroba",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 24.dp)
+                text = "TrendyTracker",
+                modifier = Modifier.padding(top = 24.dp),
+                style = Typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            // Messaggio di benvenuto
+            Text(
+                text = "Ciao ${currentUser?.name ?: ""}",
+                modifier = Modifier.padding(top = 16.dp),
+                style = Typography.headlineMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+
+            // Domanda
+            Text(
+                text = "Cosa ci mettiamo oggi?",
+                modifier = Modifier.padding(top = 8.dp),
+                style = Typography.titleLarge,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Cerchio con conteggio vestiti
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                item {
-                    StatisticCard(
-                        title = "Guardaroba",
-                        value = statistics.wardrobeCount.toString(),
-                        onClick = { /* TODO */ }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_clothes_kawaii),
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp)
                     )
-                }
-                item {
-                    StatisticCard(
-                        title = "Vestiti",
-                        value = statistics.clothesCount.toString(),
-                        onClick = { navController.navigate(Screen.Clothes.route) }
-                    )
-                }
-                item {
-                    StatisticCard(
-                        title = "Scarpe",
-                        value = statistics.shoesCount.toString(),
-                        onClick = { navController.navigate(Screen.Shoes.route) }
-                    )
-                }
-                item {
-                    StatisticCard(
-                        title = "Ricerca",
-                        value = "Cerca",
-                        onClick = { navController.navigate(Screen.Search.route) }
+                    Text(
+                        text = "$totalClothes",
+                        color = Color.White,
+                        style = Typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
-        }
-    }
-}
 
-@Composable
-private fun StatisticCard(
-    title: String,
-    value: String,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center
-            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Cerchio con conteggio scarpe
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondary)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_shoes_kawaii),
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = "$totalShoes",
+                        color = Color.White,
+                        style = Typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 } 

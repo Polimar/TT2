@@ -2,7 +2,11 @@ package com.valcan.tt.ui.screens.welcome
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,10 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.valcan.tt.R
+import com.valcan.tt.data.model.User
 import com.valcan.tt.ui.navigation.Screen
-import java.util.Date
 import com.valcan.tt.ui.components.KawaiiDatePicker
 import com.valcan.tt.ui.components.KawaiiButton
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +35,17 @@ fun WelcomeScreen(
 ) {
     val usersState by viewModel.usersState.collectAsState()
     val showDialog by viewModel.showNewUserDialog.collectAsState()
+
+    // Collezione dell'evento di navigazione
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { shouldNavigate ->
+            if (shouldNavigate) {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Welcome.route) { inclusive = true }
+                }
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -60,13 +76,16 @@ fun WelcomeScreen(
                     // Gestito dal Dialog
                 }
                 is UsersState.SingleUser -> {
-                    LaunchedEffect(Unit) {
-                        navController.navigate(Screen.Home.route)
-                    }
+                    // La navigazione è gestita dal LaunchedEffect
                 }
                 is UsersState.MultipleUsers -> {
-                    // TODO: Implementare la selezione dell'utente
-                    Text("Seleziona il tuo profilo")
+                    val users = (usersState as UsersState.MultipleUsers).users
+                    UserSelectionDialog(
+                        users = users,
+                        onUserSelected = { selectedUser ->
+                            viewModel.selectUser(selectedUser)
+                        }
+                    )
                 }
             }
         }
@@ -77,7 +96,6 @@ fun WelcomeScreen(
             onDismiss = { /* Non permettiamo di chiudere il dialog se non ci sono utenti */ },
             onConfirm = { name, birthDate, gender ->
                 viewModel.createNewUser(name, birthDate, gender)
-                navController.navigate(Screen.Home.route)
             }
         )
     }
@@ -225,6 +243,96 @@ fun NewUserDialog(
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserSelectionDialog(
+    users: List<User>,
+    onUserSelected: (User) -> Unit
+) {
+    var selectedUser by remember { mutableStateOf<User?>(null) }
+
+    AlertDialog(
+        onDismissRequest = { /* Non permettiamo di chiudere il dialog */ },
+        title = {
+            Text(
+                "Benvenuto in TrendyTracker",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(users) { user ->
+                    UserSelectionItem(
+                        user = user,
+                        isSelected = user == selectedUser,
+                        onClick = { selectedUser = user }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            selectedUser?.let { user ->
+                KawaiiButton(
+                    onClick = { onUserSelected(user) }
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_check_kawaii),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text("Conferma")
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun UserSelectionItem(
+    user: User,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                else MaterialTheme.colorScheme.surface
+            )
+            .clickable(onClick = onClick)
+            .padding(8.dp)
+    ) {
+        Image(
+            painter = painterResource(
+                id = if (user.gender == "M") R.drawable.ic_male
+                else R.drawable.ic_female
+            ),
+            contentDescription = null,
+            modifier = Modifier.size(60.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = user.name,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
         )
     }
 } 

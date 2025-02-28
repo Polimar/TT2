@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.valcan.tt.data.model.User
 import com.valcan.tt.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -22,6 +20,9 @@ class WelcomeViewModel @Inject constructor(
     private val _showNewUserDialog = MutableStateFlow(false)
     val showNewUserDialog: StateFlow<Boolean> = _showNewUserDialog.asStateFlow()
 
+    private val _navigationEvent = MutableSharedFlow<Boolean>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
+
     init {
         checkExistingUsers()
     }
@@ -34,7 +35,12 @@ class WelcomeViewModel @Inject constructor(
                         _showNewUserDialog.value = true
                         UsersState.NoUsers
                     }
-                    users.size == 1 -> UsersState.SingleUser(users.first())
+                    users.size == 1 -> {
+                        val singleUser = users.first()
+                        userRepository.updateCurrentUser(singleUser)
+                        _navigationEvent.emit(true)
+                        UsersState.SingleUser(singleUser)
+                    }
                     else -> UsersState.MultipleUsers(users)
                 }
             }
@@ -48,8 +54,19 @@ class WelcomeViewModel @Inject constructor(
                 birthday = birthday,
                 gender = gender
             )
-            userRepository.insertUser(newUser)
+            val userId = userRepository.insertUser(newUser)
+            userRepository.getUserById(userId)?.let { createdUser ->
+                userRepository.updateCurrentUser(createdUser)
+                _navigationEvent.emit(true)
+            }
             _showNewUserDialog.value = false
+        }
+    }
+
+    fun selectUser(user: User) {
+        viewModelScope.launch {
+            userRepository.updateCurrentUser(user)
+            _navigationEvent.emit(true)
         }
     }
 }

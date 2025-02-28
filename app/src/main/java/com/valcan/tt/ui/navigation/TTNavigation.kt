@@ -1,6 +1,7 @@
 package com.valcan.tt.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,21 +16,24 @@ import com.valcan.tt.ui.screens.shoes.ShoesScreen
 import com.valcan.tt.ui.screens.welcome.WelcomeScreen
 
 @Composable
-fun TTNavigation(navController: NavHostController) {
+fun TTNavigation(
+    navController: NavHostController,
+    startDestination: String = Screen.Welcome.route
+) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Welcome.route
+        startDestination = startDestination
     ) {
         composable(Screen.Welcome.route) {
             WelcomeScreen(navController)
         }
         
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController = navController)
         }
         
         composable(Screen.Clothes.route) {
-            ClothesScreen(navController)
+            ClothesScreen(navController = navController)
         }
         
         composable(
@@ -41,15 +45,15 @@ fun TTNavigation(navController: NavHostController) {
         }
         
         composable(Screen.Shoes.route) {
-            ShoesScreen(navController)
+            ShoesScreen(navController = navController)
         }
         
         composable(Screen.Search.route) {
-            SearchScreen(navController)
+            SearchScreen(navController = navController)
         }
         
         composable(Screen.Profile.route) {
-            ProfileScreen(navController)
+            ProfileScreen(navController = navController)
         }
     }
 } 
