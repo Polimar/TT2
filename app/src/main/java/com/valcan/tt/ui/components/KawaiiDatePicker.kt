@@ -31,12 +31,12 @@ fun KawaiiDatePicker(
     var selectedDay by remember { mutableStateOf(1) }
     
     val years = (1900..2024).toList()
-    val months = (1..12).toList()
-    val days = (1..31).toList()
+    val months = (1..12).toList() + (1..12).toList() + (1..12).toList()
+    val days = (1..31).toList() + (1..31).toList() + (1..31).toList()
     
     val yearState = rememberLazyListState(years.indexOf(selectedYear))
-    val monthState = rememberLazyListState(selectedMonth - 1)
-    val dayState = rememberLazyListState(selectedDay - 1)
+    val monthState = rememberLazyListState(31)
+    val dayState = rememberLazyListState(31)
     
     val coroutineScope = rememberCoroutineScope()
 
@@ -63,13 +63,18 @@ fun KawaiiDatePicker(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    // Anno
+                    // Giorno
                     KawaiiNumberPicker(
-                        items = years,
-                        state = yearState,
-                        onValueChange = { selectedYear = it },
-                        label = "Anno",
-                        modifier = Modifier.weight(1.2f)
+                        items = days,
+                        state = dayState,
+                        onValueChange = { 
+                            selectedDay = if (it > 31) it % 31 
+                                        else if (it <= 0) 31 + (it % 31)
+                                        else it
+                        },
+                        label = "Giorno",
+                        modifier = Modifier.weight(0.9f),
+                        isInfinite = true
                     )
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -78,20 +83,26 @@ fun KawaiiDatePicker(
                     KawaiiNumberPicker(
                         items = months,
                         state = monthState,
-                        onValueChange = { selectedMonth = it },
+                        onValueChange = { 
+                            selectedMonth = if (it > 12) it % 12 
+                                         else if (it <= 0) 12 + (it % 12)
+                                         else it
+                        },
                         label = "Mese",
-                        modifier = Modifier.weight(0.9f)
+                        modifier = Modifier.weight(0.9f),
+                        isInfinite = true
                     )
                     
                     Spacer(modifier = Modifier.width(8.dp))
                     
-                    // Giorno
+                    // Anno
                     KawaiiNumberPicker(
-                        items = days,
-                        state = dayState,
-                        onValueChange = { selectedDay = it },
-                        label = "Giorno",
-                        modifier = Modifier.weight(0.9f)
+                        items = years,
+                        state = yearState,
+                        onValueChange = { selectedYear = it },
+                        label = "Anno",
+                        modifier = Modifier.weight(1.2f),
+                        isInfinite = false
                     )
                 }
             }
@@ -121,7 +132,8 @@ private fun KawaiiNumberPicker(
     state: LazyListState,
     onValueChange: (Int) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isInfinite: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     
@@ -149,7 +161,6 @@ private fun KawaiiNumberPicker(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                // Indicatore di selezione
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -186,6 +197,16 @@ private fun KawaiiNumberPicker(
     }
     
     LaunchedEffect(state.firstVisibleItemIndex) {
+        if (isInfinite) {
+            when {
+                state.firstVisibleItemIndex < items.size / 3 -> {
+                    state.scrollToItem(state.firstVisibleItemIndex + items.size / 3)
+                }
+                state.firstVisibleItemIndex > items.size * 2 / 3 -> {
+                    state.scrollToItem(state.firstVisibleItemIndex - items.size / 3)
+                }
+            }
+        }
         onValueChange(items[state.firstVisibleItemIndex])
     }
 } 

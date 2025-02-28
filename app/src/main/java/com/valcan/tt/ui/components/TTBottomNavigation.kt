@@ -1,11 +1,15 @@
 package com.valcan.tt.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.valcan.tt.R
@@ -22,41 +26,35 @@ fun TTBottomNavigation(
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
 
-        NavigationBarItem(
-            icon = { 
-                Icon(
-                    painter = painterResource(R.drawable.ic_home_kawaii),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp)
-                )
-            },
-            label = { Text("Home") },
-            selected = currentRoute == Screen.Home.route,
-            onClick = { navController.navigate(Screen.Home.route) }
+        val items = listOf(
+            Screen.Home to R.drawable.ic_home_kawaii,
+            Screen.Clothes to R.drawable.ic_clothes_kawaii,
+            Screen.Shoes to R.drawable.ic_shoes_kawaii,
+            Screen.Search to R.drawable.ic_search_kawaii,
+            Screen.Profile to R.drawable.ic_profile_kawaii
         )
-        NavigationBarItem(
-            icon = { Icon(painter = painterResource(R.drawable.ic_clothes), contentDescription = null) },
-            label = { Text("Vestiti") },
-            selected = currentRoute == Screen.Clothes.route,
-            onClick = { navController.navigate(Screen.Clothes.route) }
-        )
-        NavigationBarItem(
-            icon = { Icon(painter = painterResource(R.drawable.ic_shoes), contentDescription = null) },
-            label = { Text("Scarpe") },
-            selected = currentRoute == Screen.Shoes.route,
-            onClick = { navController.navigate(Screen.Shoes.route) }
-        )
-        NavigationBarItem(
-            icon = { Icon(painter = painterResource(R.drawable.ic_search), contentDescription = null) },
-            label = { Text("Cerca") },
-            selected = currentRoute == Screen.Search.route,
-            onClick = { navController.navigate(Screen.Search.route) }
-        )
-        NavigationBarItem(
-            icon = { Icon(painter = painterResource(R.drawable.ic_profile), contentDescription = null) },
-            label = { Text("Profilo") },
-            selected = currentRoute == Screen.Profile.route,
-            onClick = { navController.navigate(Screen.Profile.route) }
-        )
+
+        items.forEach { (screen, iconRes) ->
+            val selected = currentRoute == screen.route
+            NavigationBarItem(
+                icon = {
+                    Image(
+                        painter = painterResource(iconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(if (selected) 60.dp else 48.dp),
+                        colorFilter = if (!selected) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.5f) }) else null
+                    )
+                },
+                label = null,
+                selected = selected,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
     }
 } 
