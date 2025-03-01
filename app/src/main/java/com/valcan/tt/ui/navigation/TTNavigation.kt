@@ -14,6 +14,7 @@ import com.valcan.tt.ui.screens.profile.ProfileScreen
 import com.valcan.tt.ui.screens.search.SearchScreen
 import com.valcan.tt.ui.screens.shoes.ShoesScreen
 import com.valcan.tt.ui.screens.welcome.WelcomeScreen
+import com.valcan.tt.ui.screens.wardrobe.WardrobeScreen
 
 @Composable
 fun TTNavigation(
@@ -54,6 +55,10 @@ fun TTNavigation(
         
         composable(Screen.Profile.route) {
             ProfileScreen(navController = navController)
+        }
+        
+        composable(Screen.Wardrobe.route) {
+            WardrobeScreen(navController = navController)
         }
     }
 } 

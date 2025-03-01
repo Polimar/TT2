@@ -104,12 +104,15 @@ fun WelcomeScreen(
 @Composable
 fun NewUserDialog(
     onDismiss: () -> Unit,
-    onConfirm: (String, Date, String) -> Unit
+    onConfirm: (name: String, birthDate: Date, gender: String) -> Unit,
+    preselectedGender: String? = null,
+    initialName: String? = null,
+    initialBirthday: Date? = null
 ) {
-    var name by remember { mutableStateOf("") }
-    var selectedGender by remember { mutableStateOf<String?>(null) }
+    var name by remember { mutableStateOf(initialName ?: "") }
+    var selectedDate by remember { mutableStateOf(initialBirthday ?: Date()) }
+    var selectedGender by remember { mutableStateOf(preselectedGender) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf<Date?>(null) }
     var showError by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -149,9 +152,7 @@ fun NewUserDialog(
                     onClick = { showDatePicker = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(selectedDate?.let { 
-                        it.toString().split(" ")[0] 
-                    } ?: "Seleziona data di nascita")
+                    Text(selectedDate.toString().split(" ")[0])
                 }
                 
                 if (showError && selectedDate == null) {
@@ -164,70 +165,68 @@ fun NewUserDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Selezione genere con icone
-                Text("Seleziona il tuo genere", style = MaterialTheme.typography.titleMedium)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    IconButton(
-                        onClick = { selectedGender = "M" },
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(
-                                color = if (selectedGender == "M") 
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                else MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(16.dp)
-                            )
+                // Selezione genere con icone (solo se non è preselezionato)
+                if (preselectedGender == null) {
+                    Text("Seleziona il tuo genere", style = MaterialTheme.typography.titleMedium)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_male),
-                            contentDescription = "Maschio",
-                            modifier = Modifier.size(60.dp)
-                        )
+                        IconButton(
+                            onClick = { selectedGender = "M" },
+                            modifier = Modifier
+                                .size(80.dp)
+                                .background(
+                                    color = if (selectedGender == "M") 
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    else MaterialTheme.colorScheme.surface,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_male),
+                                contentDescription = "Maschio",
+                                modifier = Modifier.size(60.dp)
+                            )
+                        }
+                        
+                        IconButton(
+                            onClick = { selectedGender = "F" },
+                            modifier = Modifier
+                                .size(80.dp)
+                                .background(
+                                    color = if (selectedGender == "F") 
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    else MaterialTheme.colorScheme.surface,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_female),
+                                contentDescription = "Femmina",
+                                modifier = Modifier.size(60.dp)
+                            )
+                        }
                     }
                     
-                    IconButton(
-                        onClick = { selectedGender = "F" },
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(
-                                color = if (selectedGender == "F") 
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                else MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_female),
-                            contentDescription = "Femmina",
-                            modifier = Modifier.size(60.dp)
+                    if (showError && selectedGender == null) {
+                        Text(
+                            "La selezione del genere è obbligatoria",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                     }
-                }
-                
-                if (showError && selectedGender == null) {
-                    Text(
-                        "La selezione del genere è obbligatoria",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
                 }
             }
         },
         confirmButton = {
             KawaiiButton(
                 onClick = {
-                    if (name.isBlank() || selectedDate == null || selectedGender == null) {
+                    if (name.isBlank() || selectedDate == null || (preselectedGender == null && selectedGender == null)) {
                         showError = true
                     } else {
-                        selectedDate?.let { date ->
-                            selectedGender?.let { gender ->
-                                onConfirm(name, date, gender)
-                            }
-                        }
+                        onConfirm(name, selectedDate, preselectedGender ?: selectedGender!!)
                     }
                 }
             ) {
