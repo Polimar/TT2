@@ -36,6 +36,18 @@ class ClothesViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
+    fun addCloth(cloth: Clothes) {
+        viewModelScope.launch {
+            clothesRepository.insertCloth(cloth)
+        }
+    }
+
+    fun updateCloth(cloth: Clothes) {
+        viewModelScope.launch {
+            clothesRepository.updateCloth(cloth)
+        }
+    }
+
     fun deleteCloth(cloth: Clothes) {
         viewModelScope.launch {
             clothesRepository.deleteCloth(cloth)
