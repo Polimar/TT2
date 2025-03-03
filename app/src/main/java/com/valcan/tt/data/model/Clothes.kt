@@ -37,5 +37,6 @@ data class Clothes(
     val position: String,
     val wardrobeId: Long? = null,
     val userId: Long? = null,
+    val imageUrl: String? = null,
     val createdAt: Date = Date()
 ) 

@@ -1,6 +1,7 @@
 package com.valcan.tt.ui.screens.clothes
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,13 +12,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.valcan.tt.R
 import com.valcan.tt.data.model.Clothes
+import com.valcan.tt.ui.components.CameraDialog
 import com.valcan.tt.ui.components.TTBottomNavigation
 import com.valcan.tt.ui.screens.clothes.ClothesViewModel
 import java.text.SimpleDateFormat
@@ -84,14 +88,15 @@ fun ClothesScreen(
     if (showNewClothDialog) {
         ClothDialog(
             onDismiss = { showNewClothDialog = false },
-            onConfirm = { name, category, color, season, position, wardrobeId ->
+            onConfirm = { name, category, color, season, position, wardrobeId, imageUrl ->
                 viewModel.addCloth(Clothes(
                     name = name,
                     category = category,
                     color = color,
                     season = season,
                     position = position,
-                    wardrobeId = wardrobeId
+                    wardrobeId = wardrobeId,
+                    imageUrl = imageUrl
                 ))
                 showNewClothDialog = false
             }
@@ -102,14 +107,15 @@ fun ClothesScreen(
     clothToEdit?.let { cloth ->
         ClothDialog(
             onDismiss = { clothToEdit = null },
-            onConfirm = { name, category, color, season, position, wardrobeId ->
+            onConfirm = { name, category, color, season, position, wardrobeId, imageUrl ->
                 viewModel.updateCloth(cloth.copy(
                     name = name,
                     category = category,
                     color = color,
                     season = season,
                     position = position,
-                    wardrobeId = wardrobeId
+                    wardrobeId = wardrobeId,
+                    imageUrl = imageUrl
                 ))
                 clothToEdit = null
             },
@@ -118,7 +124,8 @@ fun ClothesScreen(
             initialColor = cloth.color,
             initialSeason = cloth.season,
             initialPosition = cloth.position,
-            initialWardrobeId = cloth.wardrobeId
+            initialWardrobeId = cloth.wardrobeId,
+            initialImageUrl = cloth.imageUrl
         )
     }
 }
@@ -163,6 +170,18 @@ fun ClothItem(
                     text = "Stagione: ${cloth.season}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
+
+            // Immagine del vestito
+            cloth.imageUrl?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
                 )
             }
 
@@ -218,13 +237,14 @@ fun ClothItem(
 @Composable
 fun ClothDialog(
     onDismiss: () -> Unit,
-    onConfirm: (name: String, category: String, color: String, season: String, position: String, wardrobeId: Long?) -> Unit,
+    onConfirm: (name: String, category: String, color: String, season: String, position: String, wardrobeId: Long?, imageUrl: String?) -> Unit,
     initialName: String = "",
     initialCategory: String = "",
     initialColor: String = "",
     initialSeason: String = "",
     initialPosition: String = "",
     initialWardrobeId: Long? = null,
+    initialImageUrl: String? = null,
     viewModel: ClothesViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf(initialName) }
@@ -233,8 +253,10 @@ fun ClothDialog(
     var season by remember { mutableStateOf(initialSeason) }
     var position by remember { mutableStateOf(initialPosition) }
     var wardrobeId by remember { mutableStateOf(initialWardrobeId) }
+    var imageUrl by remember { mutableStateOf(initialImageUrl) }
     var showError by remember { mutableStateOf(false) }
     var showNewWardrobeDialog by remember { mutableStateOf(false) }
+    var showCamera by remember { mutableStateOf(false) }
     
     val wardrobes by viewModel.wardrobes.collectAsState(initial = emptyList())
     var expandedSeason by remember { mutableStateOf(false) }
@@ -258,6 +280,38 @@ fun ClothDialog(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
+                // Immagine e pulsante fotocamera
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imageUrl != null) {
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    IconButton(
+                        onClick = { showCamera = true },
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.photo),
+                            contentDescription = "Scatta foto",
+                            tint = if (imageUrl == null) MaterialTheme.colorScheme.onSurfaceVariant 
+                                  else MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Nome
                 OutlinedTextField(
                     value = name,
@@ -410,7 +464,7 @@ fun ClothDialog(
                         season.isBlank() || position.isBlank()) {
                         showError = true
                     } else {
-                        onConfirm(name, category, color, season, position, wardrobeId)
+                        onConfirm(name, category, color, season, position, wardrobeId, imageUrl)
                     }
                 }
             ) {
@@ -432,6 +486,16 @@ fun ClothDialog(
                 viewModel.addWardrobe(wardrobeName, description)
                 showNewWardrobeDialog = false
             }
+        )
+    }
+
+    if (showCamera) {
+        CameraDialog(
+            onImageCaptured = { uri ->
+                imageUrl = uri.toString()
+                showCamera = false
+            },
+            onDismiss = { showCamera = false }
         )
     }
 }
