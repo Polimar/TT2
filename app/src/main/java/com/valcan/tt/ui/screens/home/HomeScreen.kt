@@ -31,8 +31,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val currentUser by viewModel.currentUser.collectAsState(initial = null)
-    val totalClothes by viewModel.totalClothes.collectAsState(initial = 0)
-    val totalShoes by viewModel.totalShoes.collectAsState(initial = 0)
+    val userClothes by viewModel.userClothes.collectAsState(initial = 0)
+    val userShoes by viewModel.userShoes.collectAsState(initial = 0)
 
     // Debug: stampiamo il valore di currentUser
     LaunchedEffect(currentUser) {
@@ -77,7 +77,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Cerchio con conteggio vestiti
+            // Cerchio con conteggio vestiti dell'utente
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -95,7 +95,7 @@ fun HomeScreen(
                         modifier = Modifier.size(48.dp)
                     )
                     Text(
-                        text = "$totalClothes",
+                        text = "$userClothes",
                         color = Color.White,
                         style = Typography.headlineMedium,
                         fontWeight = FontWeight.Bold
@@ -105,7 +105,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Cerchio con conteggio scarpe
+            // Cerchio con conteggio scarpe dell'utente
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -123,7 +123,7 @@ fun HomeScreen(
                         modifier = Modifier.size(48.dp)
                     )
                     Text(
-                        text = "$totalShoes",
+                        text = "$userShoes",
                         color = Color.White,
                         style = Typography.headlineMedium,
                         fontWeight = FontWeight.Bold

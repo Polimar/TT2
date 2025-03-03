@@ -38,9 +38,7 @@ data class Shoes(
     val color: String? = null,
     val type: String?,
     val season: String?,
-    val purchaseDate: Date?,
     val price: Double?,
     val imageUrl: String?,
-    val notes: String?,
     val createdAt: Date = Date()
 ) 

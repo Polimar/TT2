@@ -1,0 +1,84 @@
+package com.valcan.tt.ui.screens.shoes
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.valcan.tt.data.model.Shoes
+import com.valcan.tt.data.repository.ShoesRepository
+import com.valcan.tt.data.repository.UserRepository
+import com.valcan.tt.data.repository.WardrobeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import java.util.Date
+import javax.inject.Inject
+
+@HiltViewModel
+class ShoesViewModel @Inject constructor(
+    private val shoesRepository: ShoesRepository,
+    private val wardrobeRepository: WardrobeRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    val shoes: StateFlow<List<Shoes>> = combine(
+        _searchQuery.debounce(300),
+        shoesRepository.getAllShoes(),
+        userRepository.getCurrentUser()
+    ) { query, shoes, currentUser ->
+        shoes.filter { shoe ->
+            shoe.userId == currentUser?.userId && (query.isBlank() || shoe.name.contains(query, ignoreCase = true))
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    val wardrobes = wardrobeRepository.getAllWardrobes()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun addShoe(shoe: Shoes) {
+        viewModelScope.launch {
+            userRepository.getCurrentUser().first()?.let { currentUser ->
+                shoesRepository.insertShoe(shoe.copy(userId = currentUser.userId))
+            }
+        }
+    }
+
+    fun updateShoe(shoe: Shoes) {
+        viewModelScope.launch {
+            userRepository.getCurrentUser().first()?.let { currentUser ->
+                shoesRepository.updateShoe(shoe.copy(userId = currentUser.userId))
+            }
+        }
+    }
+
+    fun deleteShoe(shoe: Shoes) {
+        viewModelScope.launch {
+            shoesRepository.deleteShoe(shoe)
+        }
+    }
+
+    fun addWardrobe(name: String, description: String?) {
+        viewModelScope.launch {
+            wardrobeRepository.insertWardrobe(
+                com.valcan.tt.data.model.Wardrobe(
+                    name = name,
+                    description = description,
+                    createdAt = Date(),
+                    wardrobeId = 0 // Sarà generato automaticamente
+                )
+            )
+        }
+    }
+} 

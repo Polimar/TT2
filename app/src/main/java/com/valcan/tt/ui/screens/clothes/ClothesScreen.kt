@@ -153,9 +153,36 @@ fun ClothItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Immagine del vestito
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                if (cloth.imageUrl != null) {
+                    AsyncImage(
+                        model = cloth.imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_clothes_kawaii),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+
             // Informazioni vestito
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp)
             ) {
                 Text(
                     text = cloth.name,
@@ -173,21 +200,9 @@ fun ClothItem(
                 )
             }
 
-            // Immagine del vestito
-            cloth.imageUrl?.let { url ->
-                AsyncImage(
-                    model = url,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
             // Icone di modifica e cancellazione
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_edit),
@@ -301,12 +316,10 @@ fun ClothDialog(
                         onClick = { showCamera = true },
                         modifier = Modifier.align(Alignment.Center)
                     ) {
-                        Icon(
+                        Image(
                             painter = painterResource(id = R.drawable.photo),
                             contentDescription = "Scatta foto",
-                            tint = if (imageUrl == null) MaterialTheme.colorScheme.onSurfaceVariant 
-                                  else MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-                        )
+                              )
                     }
                 }
 
