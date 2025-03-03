@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.valcan.tt.data.model.Clothes
 import com.valcan.tt.data.model.Wardrobe
 import com.valcan.tt.data.repository.ClothesRepository
+import com.valcan.tt.data.repository.UserRepository
 import com.valcan.tt.data.repository.WardrobeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -15,26 +16,26 @@ import javax.inject.Inject
 @HiltViewModel
 class ClothesViewModel @Inject constructor(
     private val clothesRepository: ClothesRepository,
-    private val wardrobeRepository: WardrobeRepository
+    private val wardrobeRepository: WardrobeRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    val clothes: StateFlow<List<Clothes>> = _searchQuery
-        .debounce(300)
-        .combine(clothesRepository.getAllClothes()) { query, clothes ->
-            if (query.isBlank()) {
-                clothes
-            } else {
-                clothes.filter { it.name.contains(query, ignoreCase = true) }
-            }
+    val clothes: StateFlow<List<Clothes>> = combine(
+        _searchQuery.debounce(300),
+        clothesRepository.getAllClothes(),
+        userRepository.getCurrentUser()
+    ) { query, clothes, currentUser ->
+        clothes.filter { cloth ->
+            cloth.userId == currentUser?.userId && (query.isBlank() || cloth.name.contains(query, ignoreCase = true))
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     val wardrobes: StateFlow<List<Wardrobe>> = wardrobeRepository.getAllWardrobes()
         .stateIn(
@@ -49,13 +50,17 @@ class ClothesViewModel @Inject constructor(
 
     fun addCloth(cloth: Clothes) {
         viewModelScope.launch {
-            clothesRepository.insertCloth(cloth)
+            userRepository.getCurrentUser().first()?.let { currentUser ->
+                clothesRepository.insertCloth(cloth.copy(userId = currentUser.userId))
+            }
         }
     }
 
     fun updateCloth(cloth: Clothes) {
         viewModelScope.launch {
-            clothesRepository.updateCloth(cloth)
+            userRepository.getCurrentUser().first()?.let { currentUser ->
+                clothesRepository.updateCloth(cloth.copy(userId = currentUser.userId))
+            }
         }
     }
 
