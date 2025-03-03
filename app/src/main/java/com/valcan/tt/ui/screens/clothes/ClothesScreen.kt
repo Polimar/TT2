@@ -84,11 +84,13 @@ fun ClothesScreen(
     if (showNewClothDialog) {
         ClothDialog(
             onDismiss = { showNewClothDialog = false },
-            onConfirm = { name, category, season, wardrobeId ->
+            onConfirm = { name, category, color, season, position, wardrobeId ->
                 viewModel.addCloth(Clothes(
                     name = name,
                     category = category,
+                    color = color,
                     season = season,
+                    position = position,
                     wardrobeId = wardrobeId
                 ))
                 showNewClothDialog = false
@@ -100,18 +102,22 @@ fun ClothesScreen(
     clothToEdit?.let { cloth ->
         ClothDialog(
             onDismiss = { clothToEdit = null },
-            onConfirm = { name, category, season, wardrobeId ->
+            onConfirm = { name, category, color, season, position, wardrobeId ->
                 viewModel.updateCloth(cloth.copy(
                     name = name,
                     category = category,
+                    color = color,
                     season = season,
+                    position = position,
                     wardrobeId = wardrobeId
                 ))
                 clothToEdit = null
             },
             initialName = cloth.name,
             initialCategory = cloth.category,
+            initialColor = cloth.color,
             initialSeason = cloth.season,
+            initialPosition = cloth.position,
             initialWardrobeId = cloth.wardrobeId
         )
     }
@@ -212,24 +218,38 @@ fun ClothItem(
 @Composable
 fun ClothDialog(
     onDismiss: () -> Unit,
-    onConfirm: (name: String, category: String, season: String, wardrobeId: Long?) -> Unit,
+    onConfirm: (name: String, category: String, color: String, season: String, position: String, wardrobeId: Long?) -> Unit,
     initialName: String = "",
     initialCategory: String = "",
+    initialColor: String = "",
     initialSeason: String = "",
-    initialWardrobeId: Long? = null
+    initialPosition: String = "",
+    initialWardrobeId: Long? = null,
+    viewModel: ClothesViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf(initialName) }
     var category by remember { mutableStateOf(initialCategory) }
+    var color by remember { mutableStateOf(initialColor) }
     var season by remember { mutableStateOf(initialSeason) }
+    var position by remember { mutableStateOf(initialPosition) }
     var wardrobeId by remember { mutableStateOf(initialWardrobeId) }
     var showError by remember { mutableStateOf(false) }
+    var showNewWardrobeDialog by remember { mutableStateOf(false) }
+    
+    val wardrobes by viewModel.wardrobes.collectAsState(initial = emptyList())
+    var expandedSeason by remember { mutableStateOf(false) }
+    var expandedWardrobe by remember { mutableStateOf(false) }
+    
+    val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
                 text = if (initialName.isEmpty()) "Nuovo Vestito" else "Modifica Vestito",
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
         },
         text = {
@@ -238,10 +258,11 @@ fun ClothDialog(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
+                // Nome
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome Vestito") },
+                    label = { Text("Nome") },
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError && name.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -249,7 +270,6 @@ fun ClothDialog(
                         focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
-
                 if (showError && name.isBlank()) {
                     Text(
                         "Il nome è obbligatorio",
@@ -258,8 +278,9 @@ fun ClothDialog(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
+                // Categoria
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
@@ -272,44 +293,208 @@ fun ClothDialog(
                     )
                 )
 
-                if (showError && category.isBlank()) {
-                    Text(
-                        "La categoria è obbligatoria",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
-
+                // Colore
                 OutlinedTextField(
-                    value = season,
-                    onValueChange = { season = it },
-                    label = { Text("Stagione") },
+                    value = color,
+                    onValueChange = { color = it },
+                    label = { Text("Colore") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = showError && season.isBlank(),
+                    isError = showError && color.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
-                if (showError && season.isBlank()) {
-                    Text(
-                        "La stagione è obbligatoria",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Stagione (Dropdown)
+                ExposedDropdownMenuBox(
+                    expanded = expandedSeason,
+                    onExpandedChange = { expandedSeason = !expandedSeason }
+                ) {
+                    OutlinedTextField(
+                        value = season,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Stagione") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSeason) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
+                    ExposedDropdownMenu(
+                        expanded = expandedSeason,
+                        onDismissRequest = { expandedSeason = false }
+                    ) {
+                        seasons.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    season = option
+                                    expandedSeason = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Posizione
+                OutlinedTextField(
+                    value = position,
+                    onValueChange = { position = it },
+                    label = { Text("Posizione") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && position.isBlank(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Armadio (Dropdown)
+                if (wardrobes.isEmpty()) {
+                    OutlinedButton(
+                        onClick = { showNewWardrobeDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Aggiungi un nuovo armadio")
+                    }
+                } else {
+                    ExposedDropdownMenuBox(
+                        expanded = expandedWardrobe,
+                        onExpandedChange = { expandedWardrobe = !expandedWardrobe }
+                    ) {
+                        OutlinedTextField(
+                            value = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Armadio") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
+                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                focusedLabelColor = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedWardrobe,
+                            onDismissRequest = { expandedWardrobe = false }
+                        ) {
+                            wardrobes.forEach { wardrobe ->
+                                DropdownMenuItem(
+                                    text = { Text(wardrobe.name) },
+                                    onClick = {
+                                        wardrobeId = wardrobe.wardrobeId
+                                        expandedWardrobe = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (name.isBlank() || category.isBlank() || season.isBlank()) {
+                    if (name.isBlank() || category.isBlank() || color.isBlank() || 
+                        season.isBlank() || position.isBlank()) {
                         showError = true
                     } else {
-                        onConfirm(name, category, season, wardrobeId)
+                        onConfirm(name, category, color, season, position, wardrobeId)
+                    }
+                }
+            ) {
+                Text("Conferma")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annulla")
+            }
+        }
+    )
+
+    if (showNewWardrobeDialog) {
+        // Implementare la dialog per l'aggiunta di un nuovo armadio
+        WardrobeDialog(
+            onDismiss = { showNewWardrobeDialog = false },
+            onConfirm = { wardrobeName, description ->
+                viewModel.addWardrobe(wardrobeName, description)
+                showNewWardrobeDialog = false
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WardrobeDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, description: String?) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Nuovo Armadio",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nome Armadio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && name.isBlank(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Descrizione (opzionale)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isBlank()) {
+                        showError = true
+                    } else {
+                        onConfirm(name, description.ifBlank { null })
                     }
                 }
             ) {

@@ -1,14 +1,41 @@
 package com.valcan.tt.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.Date
 
-@Entity(tableName = "clothes")
+@Entity(
+    tableName = "clothes",
+    indices = [
+        Index("wardrobeId"),
+        Index("userId")
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = Wardrobe::class,
+            parentColumns = ["wardrobeId"],
+            childColumns = ["wardrobeId"],
+            onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = User::class,
+            parentColumns = ["userId"],
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class Clothes(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
     val category: String,
+    val color: String,
     val season: String,
-    val wardrobeId: Long? = null
+    val position: String,
+    val wardrobeId: Long? = null,
+    val userId: Long? = null,
+    val createdAt: Date = Date()
 ) 

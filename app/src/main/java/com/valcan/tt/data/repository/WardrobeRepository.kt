@@ -10,7 +10,7 @@ class WardrobeRepository @Inject constructor(
 ) {
     fun getAllWardrobes(): Flow<List<Wardrobe>> = wardrobeDao.getAllWardrobes()
     
-    suspend fun getWardrobeById(wardrobeId: Long): Wardrobe? = wardrobeDao.getWardrobeById(wardrobeId)
+    suspend fun getWardrobeById(id: Long): Wardrobe? = wardrobeDao.getWardrobeById(id)
     
     suspend fun insertWardrobe(wardrobe: Wardrobe): Long = wardrobeDao.insertWardrobe(wardrobe)
     
