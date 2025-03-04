@@ -18,6 +18,9 @@ interface ClothesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCloth(cloth: Clothes): Long
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertClothes(clothes: List<Clothes>)
+    
     @Update
     suspend fun updateCloth(cloth: Clothes)
     

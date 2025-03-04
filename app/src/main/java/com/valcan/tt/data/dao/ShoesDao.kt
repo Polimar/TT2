@@ -26,4 +26,7 @@ interface ShoesDao {
     
     @Delete
     suspend fun deleteShoe(shoe: Shoes)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertShoes(shoes: List<Shoes>)
 } 

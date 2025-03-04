@@ -4,8 +4,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import java.util.Date
 
+@Serializable
 @Entity(
     tableName = "clothes",
     indices = [
@@ -38,5 +40,6 @@ data class Clothes(
     val wardrobeId: Long? = null,
     val userId: Long? = null,
     val imageUrl: String? = null,
+    @kotlinx.serialization.Transient
     val createdAt: Date = Date()
 ) 

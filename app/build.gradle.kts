@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("kapt")
 }
 
 android {
@@ -114,4 +116,7 @@ dependencies {
 
     // Coil per il caricamento delle immagini
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Serializzazione
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }

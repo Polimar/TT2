@@ -15,6 +15,9 @@ interface WardrobeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWardrobe(wardrobe: Wardrobe): Long
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWardrobes(wardrobes: List<Wardrobe>)
+    
     @Update
     suspend fun updateWardrobe(wardrobe: Wardrobe)
     

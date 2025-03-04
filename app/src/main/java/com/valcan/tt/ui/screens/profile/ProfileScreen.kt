@@ -30,17 +30,21 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.valcan.tt.ui.navigation.Screen
+import com.valcan.tt.ui.components.BackupRestoreDialog
+import com.valcan.tt.ui.viewmodel.BackupRestoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    backupRestoreViewModel: BackupRestoreViewModel = hiltViewModel()
 ) {
     var showUserSelectionDialog by remember { mutableStateOf(false) }
     var showNewUserDialog by remember { mutableStateOf(false) }
     var preselectedGender by remember { mutableStateOf<String?>(null) }
     val users by viewModel.users.collectAsState(initial = emptyList())
+    var showBackupDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = { TTBottomNavigation(navController = navController) }
@@ -98,7 +102,7 @@ fun ProfileScreen(
                         4 -> SettingButton(
                             icon = R.drawable.ic_backup_kawaii,
                             contentDescription = "Backup",
-                            onClick = { /* TODO */ }
+                            onClick = { showBackupDialog = true }
                         )
                         5 -> SettingButton(
                             icon = R.drawable.ic_info_kawaii,
@@ -152,6 +156,12 @@ fun ProfileScreen(
             preselectedGender = userToEdit.gender,
             initialName = userToEdit.name,
             initialBirthday = userToEdit.birthday
+        )
+    }
+
+    if (showBackupDialog) {
+        BackupRestoreDialog(
+            onDismissRequest = { showBackupDialog = false }
         )
     }
 }
