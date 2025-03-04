@@ -3,6 +3,7 @@ package com.valcan.tt.ui.screens.shoes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.valcan.tt.data.model.Shoes
+import com.valcan.tt.data.model.Wardrobe
 import com.valcan.tt.data.repository.ShoesRepository
 import com.valcan.tt.data.repository.UserRepository
 import com.valcan.tt.data.repository.WardrobeRepository
@@ -36,7 +37,7 @@ class ShoesViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    val wardrobes = wardrobeRepository.getAllWardrobes()
+    val wardrobes: StateFlow<List<Wardrobe>> = wardrobeRepository.getAllWardrobes()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -72,11 +73,10 @@ class ShoesViewModel @Inject constructor(
     fun addWardrobe(name: String, description: String?) {
         viewModelScope.launch {
             wardrobeRepository.insertWardrobe(
-                com.valcan.tt.data.model.Wardrobe(
+                Wardrobe(
                     name = name,
                     description = description,
-                    createdAt = Date(),
-                    wardrobeId = 0 // Sarà generato automaticamente
+                    createdAt = Date()
                 )
             )
         }

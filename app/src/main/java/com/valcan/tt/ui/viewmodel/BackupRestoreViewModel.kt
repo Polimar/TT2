@@ -127,14 +127,11 @@ class BackupRestoreViewModel @Inject constructor(
                         ShoesDTO(
                             id = shoe.id,
                             name = shoe.name,
-                            brand = shoe.brand,
-                            size = shoe.size,
                             wardrobeId = shoe.wardrobeId,
                             userId = shoe.userId,
                             color = shoe.color,
                             type = shoe.type,
                             season = shoe.season,
-                            price = shoe.price,
                             imageUrl = shoe.imageUrl,
                             createdAt = dateFormat.format(shoe.createdAt)
                         )
@@ -512,14 +509,11 @@ class BackupRestoreViewModel @Inject constructor(
                         Shoes(
                             id = dto.id,
                             name = dto.name,
-                            brand = dto.brand,
-                            size = dto.size,
                             wardrobeId = dto.wardrobeId,
                             userId = dto.userId,
                             color = dto.color,
                             type = dto.type,
                             season = dto.season,
-                            price = dto.price,
                             imageUrl = imageUrl,
                             createdAt = try { dateFormat.parse(dto.createdAt) ?: Date() } catch (e: Exception) { Date() }
                         )
@@ -680,14 +674,11 @@ data class ClothesDTO(
 data class ShoesDTO(
     val id: Long = 0,
     val name: String,
-    val brand: String,
-    val size: String,
     val wardrobeId: Long? = null,
     val userId: Long? = null,
     val color: String? = null,
     val type: String?,
     val season: String?,
-    val price: Double?,
     val imageUrl: String?,
     val createdAt: String
 )

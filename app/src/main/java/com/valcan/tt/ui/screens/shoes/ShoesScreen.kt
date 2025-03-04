@@ -82,16 +82,13 @@ fun ShoesScreen(
     if (showNewShoeDialog) {
         ShoeDialog(
             onDismiss = { showNewShoeDialog = false },
-            onConfirm = { name, brand, size, color, type, season, price, imageUrl, wardrobeId ->
+            onConfirm = { name, color, type, season, imageUrl, wardrobeId ->
                 viewModel.addShoe(
                     Shoes(
                         name = name,
-                        brand = brand,
-                        size = size,
                         color = color,
                         type = type,
                         season = season,
-                        price = price,
                         imageUrl = imageUrl,
                         wardrobeId = wardrobeId,
                         userId = 0 // Sarà sostituito dal viewModel
@@ -105,16 +102,13 @@ fun ShoesScreen(
     shoeToEdit?.let { shoe ->
         ShoeDialog(
             onDismiss = { shoeToEdit = null },
-            onConfirm = { name, brand, size, color, type, season, price, imageUrl, wardrobeId ->
+            onConfirm = { name, color, type, season, imageUrl, wardrobeId ->
                 viewModel.updateShoe(
                     shoe.copy(
                         name = name,
-                        brand = brand,
-                        size = size,
                         color = color,
                         type = type,
                         season = season,
-                        price = price,
                         imageUrl = imageUrl,
                         wardrobeId = wardrobeId
                     )
@@ -122,12 +116,9 @@ fun ShoesScreen(
                 shoeToEdit = null
             },
             initialName = shoe.name,
-            initialBrand = shoe.brand,
-            initialSize = shoe.size,
             initialColor = shoe.color,
             initialType = shoe.type,
             initialSeason = shoe.season,
-            initialPrice = shoe.price,
             initialImageUrl = shoe.imageUrl,
             initialWardrobeId = shoe.wardrobeId
         )
@@ -193,12 +184,17 @@ fun ShoeItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Marca: ${shoe.brand}",
+                    text = "Tipo: ${shoe.type ?: "-"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Taglia: ${shoe.size}",
+                    text = "Colore: ${shoe.color ?: "-"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = "Stagione: ${shoe.season ?: "-"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -256,48 +252,39 @@ fun ShoeItem(
 @Composable
 fun ShoeDialog(
     onDismiss: () -> Unit,
-    onConfirm: (
-        name: String,
-        brand: String,
-        size: String,
-        color: String?,
-        type: String?,
-        season: String?,
-        price: Double?,
-        imageUrl: String?,
-        wardrobeId: Long?
-    ) -> Unit,
+    onConfirm: (name: String, color: String?, type: String?, season: String?, imageUrl: String?, wardrobeId: Long?) -> Unit,
     initialName: String = "",
-    initialBrand: String = "",
-    initialSize: String = "",
-    initialColor: String? = null,
     initialType: String? = null,
+    initialColor: String? = null,
     initialSeason: String? = null,
-    initialPrice: Double? = null,
-    initialImageUrl: String? = null,
     initialWardrobeId: Long? = null,
+    initialImageUrl: String? = null,
     viewModel: ShoesViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf(initialName) }
-    var brand by remember { mutableStateOf(initialBrand) }
-    var size by remember { mutableStateOf(initialSize) }
-    var color by remember { mutableStateOf(initialColor ?: "") }
-    var type by remember { mutableStateOf(initialType ?: "") }
-    var season by remember { mutableStateOf(initialSeason ?: "") }
-    var price by remember { mutableStateOf(initialPrice?.toString() ?: "") }
-    var imageUrl by remember { mutableStateOf(initialImageUrl) }
+    var type by remember { mutableStateOf(initialType) }
+    var color by remember { mutableStateOf(initialColor) }
+    var season by remember { mutableStateOf(initialSeason) }
     var wardrobeId by remember { mutableStateOf(initialWardrobeId) }
+    var imageUrl by remember { mutableStateOf(initialImageUrl) }
     var showError by remember { mutableStateOf(false) }
     var showNewWardrobeDialog by remember { mutableStateOf(false) }
     var showCamera by remember { mutableStateOf(false) }
-
+    
     val wardrobes by viewModel.wardrobes.collectAsState(initial = emptyList())
     var expandedSeason by remember { mutableStateOf(false) }
-    var expandedType by remember { mutableStateOf(false) }
     var expandedWardrobe by remember { mutableStateOf(false) }
-
+    
     val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
-    val types = listOf("sneakers", "eleganti", "sportive", "sandali", "stivali", "altro")
+    
+    // Gestisce il ritorno dal dialog di inserimento armadio
+    LaunchedEffect(wardrobes) {
+        // Se è appena stato aggiunto un armadio, selezionalo automaticamente
+        val lastWardrobe = wardrobes.maxByOrNull { it.wardrobeId }
+        if (lastWardrobe != null && wardrobeId == null) {
+            wardrobeId = lastWardrobe.wardrobeId
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -338,7 +325,7 @@ fun ShoeDialog(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.photo),
-                            contentDescription = "Scatta foto"
+                            contentDescription = "Scatta foto",
                         )
                     }
                 }
@@ -357,31 +344,22 @@ fun ShoeDialog(
                         focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Marca
-                OutlinedTextField(
-                    value = brand,
-                    onValueChange = { brand = it },
-                    label = { Text("Marca") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = showError && brand.isBlank(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                if (showError && name.isBlank()) {
+                    Text(
+                        "Il nome è obbligatorio",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
                     )
-                )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Taglia
+                // Tipo
                 OutlinedTextField(
-                    value = size,
-                    onValueChange = { size = it },
-                    label = { Text("Taglia") },
+                    value = type ?: "",
+                    onValueChange = { type = it.ifBlank { null } },
+                    label = { Text("Tipo") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = showError && size.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary
@@ -392,8 +370,8 @@ fun ShoeDialog(
 
                 // Colore
                 OutlinedTextField(
-                    value = color,
-                    onValueChange = { color = it },
+                    value = color ?: "",
+                    onValueChange = { color = it.ifBlank { null } },
                     label = { Text("Colore") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -404,48 +382,13 @@ fun ShoeDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Tipo (Dropdown)
-                ExposedDropdownMenuBox(
-                    expanded = expandedType,
-                    onExpandedChange = { expandedType = !expandedType }
-                ) {
-                    OutlinedTextField(
-                        value = type,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Tipo") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expandedType,
-                        onDismissRequest = { expandedType = false }
-                    ) {
-                        types.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    type = option
-                                    expandedType = false
-                                }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // Stagione (Dropdown)
                 ExposedDropdownMenuBox(
                     expanded = expandedSeason,
                     onExpandedChange = { expandedSeason = !expandedSeason }
                 ) {
                     OutlinedTextField(
-                        value = season,
+                        value = season ?: "",
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Stagione") },
@@ -471,20 +414,6 @@ fun ShoeDialog(
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Prezzo
-                OutlinedTextField(
-                    value = price,
-                    onValueChange = { price = it },
-                    label = { Text("Prezzo") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
-                    )
-                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -526,6 +455,26 @@ fun ShoeDialog(
                                     }
                                 )
                             }
+                            
+                            // Opzione per aggiungere un nuovo armadio
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            "Aggiungi nuovo armadio", 
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    expandedWardrobe = false
+                                    showNewWardrobeDialog = true
+                                }
+                            )
                         }
                     }
                 }
@@ -534,20 +483,10 @@ fun ShoeDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (name.isBlank() || brand.isBlank() || size.isBlank()) {
+                    if (name.isBlank()) {
                         showError = true
                     } else {
-                        onConfirm(
-                            name,
-                            brand,
-                            size,
-                            color.ifBlank { null },
-                            type.ifBlank { null },
-                            season.ifBlank { null },
-                            price.toDoubleOrNull(),
-                            imageUrl,
-                            wardrobeId
-                        )
+                        onConfirm(name, color, type, season, imageUrl, wardrobeId)
                     }
                 }
             ) {
@@ -562,46 +501,11 @@ fun ShoeDialog(
     )
 
     if (showNewWardrobeDialog) {
-        AlertDialog(
-            onDismissRequest = { showNewWardrobeDialog = false },
-            title = { Text("Nuovo Armadio") },
-            text = {
-                var wardrobeName by remember { mutableStateOf("") }
-                var description by remember { mutableStateOf("") }
-                
-                Column {
-                    OutlinedTextField(
-                        value = wardrobeName,
-                        onValueChange = { wardrobeName = it },
-                        label = { Text("Nome") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        label = { Text("Descrizione") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    
-                    Button(
-                        onClick = { 
-                            viewModel.addWardrobe(wardrobeName, description.ifEmpty { null }) 
-                            showNewWardrobeDialog = false
-                        },
-                        modifier = Modifier.align(Alignment.End).padding(top = 16.dp)
-                    ) {
-                        Text("Salva")
-                    }
-                }
-            },
-            confirmButton = { },
-            dismissButton = {
-                TextButton(onClick = { showNewWardrobeDialog = false }) {
-                    Text("Annulla")
-                }
+        WardrobeDialog(
+            onDismiss = { showNewWardrobeDialog = false },
+            onConfirm = { wardrobeName, description ->
+                viewModel.addWardrobe(wardrobeName, description)
+                showNewWardrobeDialog = false
             }
         )
     }
@@ -615,4 +519,77 @@ fun ShoeDialog(
             onDismiss = { showCamera = false }
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WardrobeDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, description: String?) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Nuovo Armadio",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nome Armadio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && name.isBlank(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Descrizione (opzionale)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isBlank()) {
+                        showError = true
+                    } else {
+                        onConfirm(name, description.ifBlank { null })
+                    }
+                }
+            ) {
+                Text("Conferma")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annulla")
+            }
+        }
+    )
 } 

@@ -223,10 +223,6 @@ fun SearchResultItem(item: SearchItem) {
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = item.brand ?: "",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
                     text = "Armadio: ${item.wardrobeName}",
                     style = MaterialTheme.typography.bodySmall
                 )

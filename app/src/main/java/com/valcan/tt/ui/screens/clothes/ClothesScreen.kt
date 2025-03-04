@@ -276,8 +276,19 @@ fun ClothDialog(
     val wardrobes by viewModel.wardrobes.collectAsState(initial = emptyList())
     var expandedSeason by remember { mutableStateOf(false) }
     var expandedWardrobe by remember { mutableStateOf(false) }
+    var expandedCategory by remember { mutableStateOf(false) }
+    
+    val categories by viewModel.categories.collectAsState(initial = emptyList())
+    var showCategoryDeleteConfirmation by remember { mutableStateOf<String?>(null) }
     
     val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
+
+    LaunchedEffect(wardrobes) {
+        val lastWardrobe = wardrobes.maxByOrNull { it.wardrobeId }
+        if (lastWardrobe != null && wardrobeId == null) {
+            wardrobeId = lastWardrobe.wardrobeId
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -295,7 +306,6 @@ fun ClothDialog(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                // Immagine e pulsante fotocamera
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -325,7 +335,6 @@ fun ClothDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Nome
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -347,22 +356,60 @@ fun ClothDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Categoria
-                OutlinedTextField(
-                    value = category,
-                    onValueChange = { category = it },
-                    label = { Text("Categoria") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = showError && category.isBlank(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                ExposedDropdownMenuBox(
+                    expanded = expandedCategory,
+                    onExpandedChange = { expandedCategory = !expandedCategory }
+                ) {
+                    OutlinedTextField(
+                        value = category,
+                        onValueChange = { category = it },
+                        label = { Text("Categoria") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        isError = showError && category.isBlank(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
-                )
+                    
+                    if (categories.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = expandedCategory,
+                            onDismissRequest = { expandedCategory = false }
+                        ) {
+                            categories.forEach { savedCategory ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(savedCategory)
+                                            IconButton(
+                                                onClick = { showCategoryDeleteConfirmation = savedCategory },
+                                                modifier = Modifier.size(24.dp)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.ic_delete),
+                                                    contentDescription = "Elimina categoria"
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = {
+                                        category = savedCategory
+                                        expandedCategory = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Colore
                 OutlinedTextField(
                     value = color,
                     onValueChange = { color = it },
@@ -377,7 +424,6 @@ fun ClothDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Stagione (Dropdown)
                 ExposedDropdownMenuBox(
                     expanded = expandedSeason,
                     onExpandedChange = { expandedSeason = !expandedSeason }
@@ -412,7 +458,6 @@ fun ClothDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Posizione
                 OutlinedTextField(
                     value = position,
                     onValueChange = { position = it },
@@ -427,48 +472,57 @@ fun ClothDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Armadio (Dropdown)
-                if (wardrobes.isEmpty()) {
-                    OutlinedButton(
-                        onClick = { showNewWardrobeDialog = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Aggiungi un nuovo armadio")
-                    }
-                } else {
-                    ExposedDropdownMenuBox(
-                        expanded = expandedWardrobe,
-                        onExpandedChange = { expandedWardrobe = !expandedWardrobe }
-                    ) {
-                        OutlinedTextField(
-                            value = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Armadio") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                focusedLabelColor = MaterialTheme.colorScheme.primary
-                            )
+                ExposedDropdownMenuBox(
+                    expanded = expandedWardrobe,
+                    onExpandedChange = { expandedWardrobe = !expandedWardrobe }
+                ) {
+                    OutlinedTextField(
+                        value = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Armadio") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
                         )
-                        ExposedDropdownMenu(
-                            expanded = expandedWardrobe,
-                            onDismissRequest = { expandedWardrobe = false }
-                        ) {
-                            wardrobes.forEach { wardrobe ->
-                                DropdownMenuItem(
-                                    text = { Text(wardrobe.name) },
-                                    onClick = {
-                                        wardrobeId = wardrobe.wardrobeId
-                                        expandedWardrobe = false
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedWardrobe,
+                        onDismissRequest = { expandedWardrobe = false }
+                    ) {
+                        wardrobes.forEach { wardrobe ->
+                            DropdownMenuItem(
+                                text = { Text(wardrobe.name) },
+                                onClick = {
+                                    wardrobeId = wardrobe.wardrobeId
+                                    expandedWardrobe = false
+                                }
+                            )
+                        }
+                        
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            "Aggiungi nuovo armadio", 
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                     }
-                                )
-                            }
+                                },
+                                onClick = {
+                                    expandedWardrobe = false
+                                    showNewWardrobeDialog = true
+                                }
+                            )
                         }
                     }
                 }
-            }
         },
         confirmButton = {
             TextButton(
@@ -477,6 +531,9 @@ fun ClothDialog(
                         season.isBlank() || position.isBlank()) {
                         showError = true
                     } else {
+                        if (category.isNotBlank() && !categories.contains(category)) {
+                            viewModel.addCategory(category)
+                        }
                         onConfirm(name, category, color, season, position, wardrobeId, imageUrl)
                     }
                 }
@@ -491,8 +548,32 @@ fun ClothDialog(
         }
     )
 
+    showCategoryDeleteConfirmation?.let { categoryToDelete ->
+        AlertDialog(
+            onDismissRequest = { showCategoryDeleteConfirmation = null },
+            title = { Text("Conferma eliminazione") },
+            text = { Text("Sei sicuro di voler eliminare la categoria \"$categoryToDelete\"?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.removeCategory(categoryToDelete)
+                        showCategoryDeleteConfirmation = null
+                    }
+                ) {
+                    Text("Elimina")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showCategoryDeleteConfirmation = null }
+                ) {
+                    Text("Annulla")
+                }
+            }
+        )
+    }
+
     if (showNewWardrobeDialog) {
-        // Implementare la dialog per l'aggiunta di un nuovo armadio
         WardrobeDialog(
             onDismiss = { showNewWardrobeDialog = false },
             onConfirm = { wardrobeName, description ->

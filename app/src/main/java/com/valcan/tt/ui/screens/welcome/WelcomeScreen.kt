@@ -148,11 +148,18 @@ fun NewUserDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Data di nascita
+                val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+                val buttonText = if (selectedDate != initialBirthday) {
+                    dateFormat.format(selectedDate)
+                } else {
+                    "Data di nascita"
+                }
+                
                 KawaiiButton(
                     onClick = { showDatePicker = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(selectedDate.toString().split(" ")[0])
+                    Text(buttonText)
                 }
                 
                 if (showError && selectedDate == null) {

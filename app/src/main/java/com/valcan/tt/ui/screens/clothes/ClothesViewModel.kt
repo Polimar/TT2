@@ -22,6 +22,24 @@ class ClothesViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
+    
+    // Gestione delle categorie
+    private val _categories = MutableStateFlow<List<String>>(emptyList())
+    val categories = _categories.asStateFlow()
+
+    init {
+        // Carica le categorie esistenti dai vestiti
+        viewModelScope.launch {
+            clothesRepository.getAllClothes().collect { allClothes ->
+                val uniqueCategories = allClothes
+                    .map { it.category }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .sorted()
+                _categories.value = uniqueCategories
+            }
+        }
+    }
 
     val clothes: StateFlow<List<Clothes>> = combine(
         _searchQuery.debounce(300),
@@ -46,6 +64,16 @@ class ClothesViewModel @Inject constructor(
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
+    }
+    
+    fun addCategory(category: String) {
+        if (category.isBlank() || _categories.value.contains(category)) return
+        
+        _categories.value = _categories.value + category
+    }
+    
+    fun removeCategory(category: String) {
+        _categories.value = _categories.value.filter { it != category }
     }
 
     fun addCloth(cloth: Clothes) {

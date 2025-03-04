@@ -19,7 +19,6 @@ data class SearchItem(
     val id: Long,
     val type: String, // "Vestito" o "Scarpa"
     val name: String,
-    val brand: String?,
     val imageUrl: String?,
     val color: String?,
     val season: String?,
@@ -80,7 +79,6 @@ class SearchViewModel @Inject constructor(
                     id = cloth.id,
                     type = "Vestito",
                     name = cloth.name,
-                    brand = null,
                     imageUrl = cloth.imageUrl,
                     color = cloth.color,
                     season = cloth.season,
@@ -103,7 +101,6 @@ class SearchViewModel @Inject constructor(
                     id = shoe.id,
                     type = "Scarpa",
                     name = shoe.name,
-                    brand = shoe.brand,
                     imageUrl = shoe.imageUrl,
                     color = shoe.color,
                     season = shoe.season,

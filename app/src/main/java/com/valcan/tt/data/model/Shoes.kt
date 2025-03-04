@@ -33,14 +33,11 @@ data class Shoes(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
-    val brand: String,
-    val size: String,
     val wardrobeId: Long? = null,
     val userId: Long? = null,
     val color: String? = null,
     val type: String?,
     val season: String?,
-    val price: Double?,
     val imageUrl: String?,
     @kotlinx.serialization.Transient
     val createdAt: Date = Date()
