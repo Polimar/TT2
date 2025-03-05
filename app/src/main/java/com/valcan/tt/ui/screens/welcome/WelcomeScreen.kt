@@ -27,6 +27,8 @@ import com.valcan.tt.ui.components.KawaiiDatePicker
 import com.valcan.tt.ui.components.KawaiiButton
 import java.util.Date
 
+var isDateSelected: Boolean = false
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(
@@ -114,6 +116,9 @@ fun NewUserDialog(
     var selectedGender by remember { mutableStateOf(preselectedGender) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
+    
+    // Importante: aggiungiamo questa variabile per tenere traccia se l'utente ha selezionato una data
+    var isDateSelected by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -149,7 +154,9 @@ fun NewUserDialog(
                 
                 // Data di nascita
                 val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-                val buttonText = if (selectedDate != initialBirthday) {
+                
+                // Determina il testo da mostrare sul bottone
+                val buttonText = if (isDateSelected) {
                     dateFormat.format(selectedDate)
                 } else {
                     "Data di nascita"
@@ -162,7 +169,7 @@ fun NewUserDialog(
                     Text(buttonText)
                 }
                 
-                if (showError && selectedDate == null) {
+                if (showError && !isDateSelected) {
                     Text(
                         "La data di nascita è obbligatoria",
                         color = MaterialTheme.colorScheme.error,
@@ -230,7 +237,7 @@ fun NewUserDialog(
         confirmButton = {
             KawaiiButton(
                 onClick = {
-                    if (name.isBlank() || selectedDate == null || (preselectedGender == null && selectedGender == null)) {
+                    if (name.isBlank() || !isDateSelected || (preselectedGender == null && selectedGender == null)) {
                         showError = true
                     } else {
                         onConfirm(name, selectedDate, preselectedGender ?: selectedGender!!)
@@ -244,8 +251,9 @@ fun NewUserDialog(
 
     if (showDatePicker) {
         KawaiiDatePicker(
-            onDateSelected = { 
-                selectedDate = it
+            onDateSelected = { date -> 
+                selectedDate = date
+                isDateSelected = true  // Impostiamo questo flag quando l'utente seleziona una data
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false }

@@ -1,7 +1,13 @@
 package com.valcan.tt.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,46 +15,62 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import java.util.*
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import java.util.*
 
 @Composable
 fun KawaiiDatePicker(
     onDateSelected: (Date) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var selectedYear by remember { mutableStateOf(2000) }
-    var selectedMonth by remember { mutableStateOf(1) }
-    var selectedDay by remember { mutableStateOf(1) }
+    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
     
-    val years = (1900..2024).toList()
+    // Inizializzo con valori di default
+    var selectedDay by remember { mutableStateOf(15) }
+    var selectedMonth by remember { mutableStateOf(6) }
+    var selectedYear by remember { mutableStateOf(2000) }
+    
+    // Uso il metodo più semplice suggerito
+    val years = (1936..currentYear).toList()
     val months = (1..12).toList() + (1..12).toList() + (1..12).toList()
     val days = (1..31).toList() + (1..31).toList() + (1..31).toList()
     
-    val yearState = rememberLazyListState(years.indexOf(selectedYear))
-    val monthState = rememberLazyListState(31)
-    val dayState = rememberLazyListState(31)
+    // Posizioni iniziali (al centro delle liste)
+    val dayState = rememberLazyListState(initialFirstVisibleItemIndex = 31)
+    val monthState = rememberLazyListState(initialFirstVisibleItemIndex = 12)
+    val yearState = rememberLazyListState(initialFirstVisibleItemIndex = (years.size - 1) / 2)
     
-    val coroutineScope = rememberCoroutineScope()
-
+    val scope = rememberCoroutineScope()
+    
+    // Traccia i valori correntemente selezionati
+    LaunchedEffect(dayState.firstVisibleItemIndex) {
+        val index = dayState.firstVisibleItemIndex + 1 // +1 perché vogliamo il secondo elemento visibile (centrale)
+        if (index < days.size) {
+            selectedDay = days[index]
+        }
+    }
+    
+    LaunchedEffect(monthState.firstVisibleItemIndex) {
+        val index = monthState.firstVisibleItemIndex + 1
+        if (index < months.size) {
+            selectedMonth = months[index]
+        }
+    }
+    
+    LaunchedEffect(yearState.firstVisibleItemIndex) {
+        val index = yearState.firstVisibleItemIndex + 1
+        if (index < years.size) {
+            selectedYear = years[index]
+        }
+    }
+    
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        title = { 
+        title = {
             Text(
-                "Seleziona la tua data di nascita",
+                "Seleziona la tua\ndata di nascita",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -60,61 +82,176 @@ fun KawaiiDatePicker(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    // Giorno
-                    KawaiiNumberPicker(
-                        items = days,
-                        state = dayState,
-                        onValueChange = { 
-                            selectedDay = if (it > 31) it % 31 
-                                        else if (it <= 0) 31 + (it % 31)
-                                        else it
-                        },
-                        label = "Giorno",
-                        modifier = Modifier.weight(0.9f),
-                        isInfinite = true
-                    )
+                    // Cilindro per i giorni
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        Text(
+                            text = "Giorno",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(bottom = 4.dp)
+                        )
+                        
+                        // Rettangolo centrale evidenziato
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        )
+                        
+                        LazyColumn(
+                            state = dayState,
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            contentPadding = PaddingValues(vertical = 40.dp) // Per far vedere 3 item
+                        ) {
+                            items(days) { day ->
+                                Box(
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = day.toString(),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (day == selectedDay) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
+                        }
+                    }
                     
-                    Spacer(modifier = Modifier.width(8.dp))
+                    // Cilindro per i mesi
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        Text(
+                            text = "Mese",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(bottom = 4.dp)
+                        )
+                        
+                        // Rettangolo centrale evidenziato
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        )
+                        
+                        LazyColumn(
+                            state = monthState,
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            contentPadding = PaddingValues(vertical = 40.dp)
+                        ) {
+                            items(months) { month ->
+                                Box(
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = month.toString(),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (month == selectedMonth) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
+                        }
+                    }
                     
-                    // Mese
-                    KawaiiNumberPicker(
-                        items = months,
-                        state = monthState,
-                        onValueChange = { 
-                            selectedMonth = if (it > 12) it % 12 
-                                         else if (it <= 0) 12 + (it % 12)
-                                         else it
-                        },
-                        label = "Mese",
-                        modifier = Modifier.weight(0.9f),
-                        isInfinite = true
-                    )
-                    
-                    Spacer(modifier = Modifier.width(8.dp))
-                    
-                    // Anno
-                    KawaiiNumberPicker(
-                        items = years,
-                        state = yearState,
-                        onValueChange = { selectedYear = it },
-                        label = "Anno",
-                        modifier = Modifier.weight(1.2f),
-                        isInfinite = false
-                    )
+                    // Cilindro per gli anni
+                    Box(
+                        modifier = Modifier
+                            .weight(1.2f)
+                            .fillMaxHeight()
+                    ) {
+                        Text(
+                            text = "Anno",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(bottom = 4.dp)
+                        )
+                        
+                        // Rettangolo centrale evidenziato
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        )
+                        
+                        LazyColumn(
+                            state = yearState,
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            contentPadding = PaddingValues(vertical = 40.dp)
+                        ) {
+                            items(years) { year ->
+                                Box(
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = year.toString(),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (year == selectedYear) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
         confirmButton = {
-            KawaiiButton(
-                onClick = {
-                    val calendar = Calendar.getInstance()
-                    calendar.set(selectedYear, selectedMonth - 1, selectedDay)
-                    onDateSelected(calendar.time)
+            KawaiiButton(onClick = {
+                val calendar = Calendar.getInstance()
+                // Aggiunto controllo per giorni validi in base al mese
+                val adjustedDay = when (selectedMonth) {
+                    2 -> selectedDay.coerceAtMost(if (selectedYear % 4 == 0 && (selectedYear % 100 != 0 || selectedYear % 400 == 0)) 29 else 28)
+                    4, 6, 9, 11 -> selectedDay.coerceAtMost(30)
+                    else -> selectedDay
                 }
-            ) {
+                
+                calendar.set(selectedYear, selectedMonth - 1, adjustedDay)
+                onDateSelected(calendar.time)
+            }) {
                 Text("Conferma")
             }
         },
@@ -127,86 +264,96 @@ fun KawaiiDatePicker(
 }
 
 @Composable
-private fun KawaiiNumberPicker(
-    items: List<Int>,
-    state: LazyListState,
-    onValueChange: (Int) -> Unit,
+fun NumberSelector(
     label: String,
-    modifier: Modifier = Modifier,
-    isInfinite: Boolean
+    values: List<Int>,
+    initialValue: Int,
+    onValueChange: (Int) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    var currentValue by remember { mutableStateOf(initialValue) }
     
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(4.dp)
     ) {
+        // Label
         Text(
             text = label,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary
         )
         
-        Card(
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        // Valore precedente (più piccolo e trasparente)
+        val prevIndex = (values.indexOf(currentValue) - 1).coerceAtLeast(0)
+        val prevValue = if (prevIndex >= 0) values[prevIndex] else values.last()
+        Text(
+            text = prevValue.toString(),
+            modifier = Modifier.height(24.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            textAlign = TextAlign.Center
+        )
+        
+        // Valore attuale (più grande e in evidenza)
+        Box(
             modifier = Modifier
-                .height(120.dp)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                .background(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(8.dp)
                 )
-                
-                LazyColumn(
-                    state = state,
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    userScrollEnabled = true
-                ) {
-                    items(items) { item ->
-                        Box(
-                            modifier = Modifier
-                                .height(40.dp)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = item.toString(),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = if (state.firstVisibleItemIndex == items.indexOf(item)) 
-                                    MaterialTheme.colorScheme.primary 
-                                else 
-                                    MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = currentValue.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
+        }
+        
+        // Valore successivo (più piccolo e trasparente)
+        val nextIndex = (values.indexOf(currentValue) + 1) % values.size
+        val nextValue = if (nextIndex < values.size) values[nextIndex] else values.first()
+        Text(
+            text = nextValue.toString(),
+            modifier = Modifier.height(24.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            textAlign = TextAlign.Center
+        )
+        
+        // Pulsanti Su/Giù
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Pulsante Giù
+            IconButton(
+                onClick = {
+                    val currentIndex = values.indexOf(currentValue)
+                    val newIndex = if (currentIndex <= 0) values.size - 1 else currentIndex - 1
+                    currentValue = values[newIndex]
+                    onValueChange(currentValue)
+                },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Text("▲", color = MaterialTheme.colorScheme.primary)
+            }
+            
+            // Pulsante Su
+            IconButton(
+                onClick = {
+                    val currentIndex = values.indexOf(currentValue)
+                    val newIndex = (currentIndex + 1) % values.size
+                    currentValue = values[newIndex]
+                    onValueChange(currentValue)
+                },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Text("▼", color = MaterialTheme.colorScheme.primary)
             }
         }
-    }
-    
-    LaunchedEffect(state.firstVisibleItemIndex) {
-        if (isInfinite) {
-            when {
-                state.firstVisibleItemIndex < items.size / 3 -> {
-                    state.scrollToItem(state.firstVisibleItemIndex + items.size / 3)
-                }
-                state.firstVisibleItemIndex > items.size * 2 / 3 -> {
-                    state.scrollToItem(state.firstVisibleItemIndex - items.size / 3)
-                }
-            }
-        }
-        onValueChange(items[state.firstVisibleItemIndex])
     }
 } 
