@@ -1,3 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TrendyTracker</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_clothes">Clothes</string>
+    <string name="nav_shoes">Shoes</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_profile">Profile</string>
+    
+    <!-- Profile Screen -->
+    <string name="profile_title">Your Profile</string>
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_app_language">App Language</string>
+    <string name="profile_backup">Backup and Restore</string>
+    <string name="profile_select_user">Select User</string>
+    <string name="profile_new_user">New User</string>
+    
+    <!-- Edit Profile Dialog -->
+    <string name="edit_profile_title">Edit Profile</string>
+    <string name="edit_profile_name">Name</string>
+    <string name="edit_profile_birthdate">Birth Date</string>
+    <string name="edit_profile_gender">Gender</string>
+    <string name="edit_profile_confirm">Confirm</string>
+    <string name="edit_profile_cancel">Cancel</string>
+    
+    <!-- Search Screen -->
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search...</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_message">Search among your clothes and shoes</string>
+    <string name="search_clothes_category">Clothes Categories</string>
+    <string name="search_shoes_type">Shoes Types</string>
+    <string name="search_clothes">Clothes</string>
+    <string name="search_shoes">Shoes</string>
+    <string name="search_category">Category</string>
+    <string name="search_type">Type</string>
+    <string name="search_color">Color</string>
+    <string name="search_all">All</string>
+    
+    <!-- Clothes Screen -->
+    <string name="clothes_title">Clothes</string>
+    <string name="clothes_new">New Clothing</string>
+    <string name="clothes_edit">Edit Clothing</string>
+    <string name="clothes_delete">Delete Clothing</string>
+    <string name="clothes_delete_confirm">Are you sure you want to delete this clothing?</string>
+    <string name="clothes_name">Name</string>
+    <string name="clothes_category">Category</string>
+    <string name="clothes_color">Color</string>
+    <string name="clothes_season">Season</string>
+    <string name="clothes_wardrobe">Wardrobe</string>
+    
+    <!-- Shoes Screen -->
+    <string name="shoes_title">Shoes</string>
+    <string name="shoes_new">New Shoes</string>
+    <string name="shoes_edit">Edit Shoes</string>
+    <string name="shoes_delete">Delete Shoes</string>
+    <string name="shoes_delete_confirm">Are you sure you want to delete these shoes?</string>
+    <string name="shoes_name">Name</string>
+    <string name="shoes_type">Type</string>
+    <string name="shoes_color">Color</string>
+    <string name="shoes_season">Season</string>
+    <string name="shoes_wardrobe">Wardrobe</string>
+    
+    <!-- Common -->
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    
+    <!-- Seasons -->
+    <string name="season_spring">Spring</string>
+    <string name="season_summer">Summer</string>
+    <string name="season_autumn">Autumn</string>
+    <string name="season_winter">Winter</string>
+    <string name="season_all">All seasons</string>
+    
+    <!-- Backup and Restore -->
+    <string name="backup_title">Backup and Restore</string>
+    <string name="backup_create">Create Backup</string>
+    <string name="backup_restore">Restore From Backup</string>
+    <string name="backup_select_file">Select Backup File</string>
+    <string name="backup_select_data">Select Data to Restore</string>
+    <string name="backup_users">Users</string>
+    <string name="backup_wardrobes">Wardrobes</string>
+    <string name="backup_clothes">Clothes</string>
+    <string name="backup_shoes">Shoes</string>
+    <string name="backup_success">Backup successfully created</string>
+    <string name="backup_error">Error during backup</string>
+    <string name="restore_success">Data successfully restored</string>
+    <string name="restore_error">Error during restore</string>
 </resources>
