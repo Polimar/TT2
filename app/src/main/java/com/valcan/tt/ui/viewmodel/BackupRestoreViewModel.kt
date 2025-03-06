@@ -12,6 +12,9 @@ import com.valcan.tt.data.model.Shoes
 import com.valcan.tt.data.model.User
 import com.valcan.tt.data.model.Wardrobe
 import com.valcan.tt.data.repository.UserRepository
+import com.valcan.tt.data.repository.WardrobeRepository
+import com.valcan.tt.data.repository.ClothesRepository
+import com.valcan.tt.data.repository.ShoesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -36,11 +40,15 @@ import javax.inject.Inject
 
 private const val TAG = "BackupRestoreViewModel"
 
+@OptIn(ExperimentalSerializationApi::class)
 @HiltViewModel
 class BackupRestoreViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val database: AppDatabase,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val wardrobeRepository: WardrobeRepository,
+    private val clothesRepository: ClothesRepository,
+    private val shoesRepository: ShoesRepository
 ) : ViewModel() {
 
     private val _restoreComplete = MutableStateFlow(false)

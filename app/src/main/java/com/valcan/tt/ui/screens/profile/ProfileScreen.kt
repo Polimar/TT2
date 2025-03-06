@@ -6,10 +6,8 @@ import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -37,23 +35,19 @@ import com.valcan.tt.data.model.User
 import com.valcan.tt.ui.components.TTBottomNavigation
 import com.valcan.tt.ui.components.KawaiiButton
 import com.valcan.tt.ui.screens.welcome.NewUserDialog
-import com.valcan.tt.ui.screens.welcome.UserSelectionDialog
 import com.valcan.tt.ui.viewmodel.ProfileViewModel
-import java.util.Date
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.valcan.tt.ui.navigation.Screen
 import com.valcan.tt.ui.components.BackupRestoreDialog
-import com.valcan.tt.ui.viewmodel.BackupRestoreViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = hiltViewModel(),
-    backupRestoreViewModel: BackupRestoreViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
     var showUserSelectionDialog by remember { mutableStateOf(false) }
     var showNewUserDialog by remember { mutableStateOf(false) }

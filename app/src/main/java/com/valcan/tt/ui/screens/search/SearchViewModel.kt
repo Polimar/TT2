@@ -12,7 +12,6 @@ import com.valcan.tt.data.repository.UserRepository
 import com.valcan.tt.data.repository.WardrobeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SearchItem(
@@ -26,6 +25,7 @@ data class SearchItem(
     val category: String?
 )
 
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val clothesRepository: ClothesRepository,
@@ -35,14 +35,12 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _selectedType = MutableStateFlow("Tutti")
-    private val _selectedCategory = MutableStateFlow("Tutte")
     private val _selectedSeason = MutableStateFlow("Tutte")
     private val _selectedColor = MutableStateFlow("Tutti")
     private val _searchQuery = MutableStateFlow("")
 
     val searchResults: StateFlow<List<SearchItem>> = combine(
         _selectedType,
-        _selectedCategory,
         _selectedSeason,
         _selectedColor,
         _searchQuery.debounce(300),
@@ -52,14 +50,13 @@ class SearchViewModel @Inject constructor(
         userRepository.getCurrentUser()
     ) { array ->
         val type = array[0] as String
-        val category = array[1] as String
-        val season = array[2] as String
-        val color = array[3] as String
-        val query = array[4] as String
-        val clothes = array[5] as List<Clothes>
-        val shoes = array[6] as List<Shoes>
-        val wardrobes = array[7] as List<Wardrobe>
-        val user = array[8] as User?
+        val season = array[1] as String
+        val color = array[2] as String
+        val query = array[3] as String
+        val clothes = safeCastToClothesList(array[4])
+        val shoes = safeCastToShoesList(array[5])
+        val wardrobes = safeCastToWardrobeList(array[6])
+        val user = array[7] as? User
         
         if (user == null) return@combine emptyList()
 
@@ -70,8 +67,7 @@ class SearchViewModel @Inject constructor(
         if (type == "Tutti" || type == "Vestiti") {
             clothes.filter { cloth ->
                 cloth.userId == user.userId &&
-                cloth.name.contains(query, ignoreCase = true) &&
-                (category == "Tutte" || cloth.category == category) &&
+                (query.isEmpty() || cloth.name.contains(query, ignoreCase = true)) &&
                 (season == "Tutte" || cloth.season == season) &&
                 (color == "Tutti" || cloth.color == color)
             }.mapTo(results) { cloth ->
@@ -92,8 +88,7 @@ class SearchViewModel @Inject constructor(
         if (type == "Tutti" || type == "Scarpe") {
             shoes.filter { shoe ->
                 shoe.userId == user.userId &&
-                shoe.name.contains(query, ignoreCase = true) &&
-                (category == "Tutte" || shoe.type == category) &&
+                (query.isEmpty() || shoe.name.contains(query, ignoreCase = true)) &&
                 (season == "Tutte" || shoe.season == season) &&
                 (color == "Tutti" || shoe.color == color)
             }.mapTo(results) { shoe ->
@@ -117,14 +112,44 @@ class SearchViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    fun updateFilters(type: String, category: String, season: String, color: String) {
+    fun updateFilters(type: String, season: String, color: String) {
         _selectedType.value = type
-        _selectedCategory.value = category
         _selectedSeason.value = season
         _selectedColor.value = color
     }
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
+    }
+
+    // Versione sicura dei cast per le liste
+    private fun safeCastToClothesList(value: Any?): List<Clothes> {
+        return if (value is List<*>) {
+            value.filterIsInstance<Clothes>()
+        } else {
+            emptyList()
+        }
+    }
+    
+    private fun safeCastToShoesList(value: Any?): List<Shoes> {
+        return if (value is List<*>) {
+            value.filterIsInstance<Shoes>()
+        } else {
+            emptyList()
+        }
+    }
+    
+    private fun safeCastToWardrobeList(value: Any?): List<Wardrobe> {
+        return if (value is List<*>) {
+            value.filterIsInstance<Wardrobe>()
+        } else {
+            emptyList()
+        }
+    }
+
+    // Helper per verificare se un testo contiene i termini di ricerca
+    private fun containsSearchTerm(text: String?, query: String): Boolean {
+        if (text == null) return false
+        return text.contains(query, ignoreCase = true)
     }
 } 

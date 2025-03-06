@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 @HiltViewModel
 class ClothesViewModel @Inject constructor(
     private val clothesRepository: ClothesRepository,

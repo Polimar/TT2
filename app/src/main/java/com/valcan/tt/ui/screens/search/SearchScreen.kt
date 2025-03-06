@@ -1,7 +1,5 @@
 package com.valcan.tt.ui.screens.search
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,7 +28,6 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     var selectedType by remember { mutableStateOf("Tutti") }
-    var selectedCategory by remember { mutableStateOf("Tutte") }
     var selectedSeason by remember { mutableStateOf("Tutte") }
     var selectedColor by remember { mutableStateOf("Tutti") }
     var searchQuery by remember { mutableStateOf("") }
@@ -66,22 +63,17 @@ fun SearchScreen(
                 selectedType = selectedType,
                 onTypeSelected = { 
                     selectedType = it
-                    viewModel.updateFilters(it, selectedCategory, selectedSeason, selectedColor)
-                },
-                selectedCategory = selectedCategory,
-                onCategorySelected = { 
-                    selectedCategory = it
-                    viewModel.updateFilters(selectedType, it, selectedSeason, selectedColor)
+                    viewModel.updateFilters(it, selectedSeason, selectedColor)
                 },
                 selectedSeason = selectedSeason,
                 onSeasonSelected = { 
                     selectedSeason = it
-                    viewModel.updateFilters(selectedType, selectedCategory, it, selectedColor)
+                    viewModel.updateFilters(selectedType, it, selectedColor)
                 },
                 selectedColor = selectedColor,
                 onColorSelected = { 
                     selectedColor = it
-                    viewModel.updateFilters(selectedType, selectedCategory, selectedSeason, it)
+                    viewModel.updateFilters(selectedType, selectedSeason, it)
                 }
             )
 
@@ -104,8 +96,6 @@ fun SearchScreen(
 fun FilterSection(
     selectedType: String,
     onTypeSelected: (String) -> Unit,
-    selectedCategory: String,
-    onCategorySelected: (String) -> Unit,
     selectedSeason: String,
     onSeasonSelected: (String) -> Unit,
     selectedColor: String,
@@ -127,7 +117,7 @@ fun FilterSection(
         // Stagione
         FilterChipGroup(
             title = "Stagione",
-            options = listOf("Tutte", "Primavera", "Estate", "Autunno", "Inverno"),
+            options = listOf("Tutte", "primavera", "estate", "autunno", "inverno"),
             selectedOption = selectedSeason,
             onOptionSelected = onSeasonSelected
         )
@@ -225,4 +215,4 @@ fun SearchResultItem(item: SearchItem) {
             }
         }
     }
-} 
+}

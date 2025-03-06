@@ -28,14 +28,12 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraDialog(
     onImageCaptured: (Uri) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -160,7 +158,7 @@ private val Context.executor: Executor
     get() = ContextCompat.getMainExecutor(this)
 
 private fun Context.getOutputDirectory(): File {
-    val mediaDir = externalMediaDirs.firstOrNull()?.let {
+    val mediaDir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES)?.let {
         File(it, "TrendyTracker").apply { mkdirs() }
     }
     return if (mediaDir != null && mediaDir.exists())

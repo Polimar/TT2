@@ -1,7 +1,6 @@
 package com.valcan.tt.ui.screens.wardrobe
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -98,7 +96,7 @@ fun WardrobeScreen(
             onConfirm = { name, description ->
                 viewModel.updateWardrobe(wardrobeToEdit.wardrobeId, name, description)
             },
-            initialName = wardrobeToEdit.name ?: "",
+            initialName = wardrobeToEdit.name,
             initialDescription = wardrobeToEdit.description ?: ""
         )
     }
@@ -133,7 +131,7 @@ fun WardrobeItem(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = wardrobe.name ?: "",
+                    text = wardrobe.name,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(

@@ -23,11 +23,9 @@ import com.valcan.tt.R
 import com.valcan.tt.data.model.Clothes
 import com.valcan.tt.ui.components.CameraDialog
 import com.valcan.tt.ui.components.TTBottomNavigation
-import com.valcan.tt.ui.screens.clothes.ClothesViewModel
-import java.text.SimpleDateFormat
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+
 @Composable
 fun ClothesScreen(
     navController: NavController,
@@ -592,7 +590,6 @@ fun ClothDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeDialog(
     onDismiss: () -> Unit,
