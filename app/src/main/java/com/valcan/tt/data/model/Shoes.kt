@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.util.Date
 
 @Serializable
@@ -39,6 +40,6 @@ data class Shoes(
     val type: String?,
     val season: String?,
     val imageUrl: String?,
-    @kotlinx.serialization.Transient
+    @Transient
     val createdAt: Date = Date()
 ) 

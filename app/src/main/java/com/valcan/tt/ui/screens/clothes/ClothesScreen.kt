@@ -42,13 +42,11 @@ fun ClothesScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showNewClothDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_add_kawaii),
                     contentDescription = "Aggiungi Vestito",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }

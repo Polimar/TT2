@@ -23,6 +23,34 @@ class ShoesViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
+    // Gestione dei tipi
+    private val _types = MutableStateFlow<List<String>>(emptyList())
+    val types = _types.asStateFlow()
+
+    init {
+        // Carica i tipi esistenti dalle scarpe
+        viewModelScope.launch {
+            shoesRepository.getAllShoes().collect { allShoes ->
+                val uniqueTypes = allShoes
+                    .mapNotNull { it.type }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .sorted()
+                _types.value = uniqueTypes
+            }
+        }
+    }
+
+    fun addType(type: String) {
+        if (type.isBlank() || _types.value.contains(type)) return
+        
+        _types.value = _types.value + type
+    }
+    
+    fun removeType(type: String) {
+        _types.value = _types.value.filter { it != type }
+    }
+
     val shoes: StateFlow<List<Shoes>> = combine(
         _searchQuery.debounce(300),
         shoesRepository.getAllShoes(),

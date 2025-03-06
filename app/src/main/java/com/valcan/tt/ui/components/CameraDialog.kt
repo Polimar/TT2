@@ -3,12 +3,12 @@ package com.valcan.tt.ui.components
 import android.Manifest
 import android.content.Context
 import android.net.Uri
-import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -137,10 +137,9 @@ fun CameraPreview(
                 )
             }
         ) {
-            Icon(
+            Image(
                 painter = painterResource(id = R.drawable.photo),
                 contentDescription = "Scatta foto",
-                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

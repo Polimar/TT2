@@ -39,13 +39,11 @@ fun ShoesScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showNewShoeDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_add_kawaii),
                     contentDescription = "Aggiungi Scarpe",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }
@@ -116,8 +114,8 @@ fun ShoesScreen(
                 shoeToEdit = null
             },
             initialName = shoe.name,
-            initialColor = shoe.color,
-            initialType = shoe.type,
+            initialColor = shoe.color ?: "",
+            initialType = shoe.type ?: "",
             initialSeason = shoe.season,
             initialImageUrl = shoe.imageUrl,
             initialWardrobeId = shoe.wardrobeId
@@ -252,10 +250,10 @@ fun ShoeItem(
 @Composable
 fun ShoeDialog(
     onDismiss: () -> Unit,
-    onConfirm: (name: String, color: String?, type: String?, season: String?, imageUrl: String?, wardrobeId: Long?) -> Unit,
+    onConfirm: (name: String, color: String, type: String, season: String?, imageUrl: String?, wardrobeId: Long?) -> Unit,
     initialName: String = "",
-    initialType: String? = null,
-    initialColor: String? = null,
+    initialType: String = "",
+    initialColor: String = "",
     initialSeason: String? = null,
     initialWardrobeId: Long? = null,
     initialImageUrl: String? = null,
@@ -274,7 +272,11 @@ fun ShoeDialog(
     val wardrobes by viewModel.wardrobes.collectAsState(initial = emptyList())
     var expandedSeason by remember { mutableStateOf(false) }
     var expandedWardrobe by remember { mutableStateOf(false) }
-    
+    var expandedType by remember { mutableStateOf(false) }
+
+    val types by viewModel.types.collectAsState(initial = emptyList())
+    var showTypeDeleteConfirmation by remember { mutableStateOf<String?>(null) }
+
     val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
     
     // Gestisce il ritorno dal dialog di inserimento armadio
@@ -355,23 +357,64 @@ fun ShoeDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Tipo
-                OutlinedTextField(
-                    value = type ?: "",
-                    onValueChange = { type = it.ifBlank { null } },
-                    label = { Text("Tipo") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                ExposedDropdownMenuBox(
+                    expanded = expandedType,
+                    onExpandedChange = { expandedType = !expandedType }
+                ) {
+                    OutlinedTextField(
+                        value = type,
+                        onValueChange = { type = it },
+                        label = { Text("Tipo") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        isError = showError && type.isBlank(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
-                )
+
+                    if (types.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = expandedType,
+                            onDismissRequest = { expandedType = false }
+                        ) {
+                            types.forEach { savedType ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(savedType)
+                                            IconButton(
+                                                onClick = { showTypeDeleteConfirmation = savedType },
+                                                modifier = Modifier.size(24.dp)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.ic_delete),
+                                                    contentDescription = "Elimina tipo"
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = {
+                                        type = savedType
+                                        expandedType = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Colore
                 OutlinedTextField(
-                    value = color ?: "",
-                    onValueChange = { color = it.ifBlank { null } },
+                    value = color,
+                    onValueChange = { color = it },
                     label = { Text("Colore") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -486,6 +529,9 @@ fun ShoeDialog(
                     if (name.isBlank()) {
                         showError = true
                     } else {
+                        if (type.isNotBlank() && !types.contains(type)) {
+                            viewModel.addType(type)
+                        }
                         onConfirm(name, color, type, season, imageUrl, wardrobeId)
                     }
                 }
@@ -517,6 +563,31 @@ fun ShoeDialog(
                 showCamera = false
             },
             onDismiss = { showCamera = false }
+        )
+    }
+
+    showTypeDeleteConfirmation?.let { typeToDelete ->
+        AlertDialog(
+            onDismissRequest = { showTypeDeleteConfirmation = null },
+            title = { Text("Conferma eliminazione") },
+            text = { Text("Sei sicuro di voler eliminare il tipo \"$typeToDelete\"?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.removeType(typeToDelete)
+                        showTypeDeleteConfirmation = null
+                    }
+                ) {
+                    Text("Elimina")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showTypeDeleteConfirmation = null }
+                ) {
+                    Text("Annulla")
+                }
+            }
         )
     }
 }
