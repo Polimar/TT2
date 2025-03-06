@@ -29,7 +29,6 @@ fun SearchScreen(
 ) {
     var selectedType by remember { mutableStateOf("Tutti") }
     var selectedSeason by remember { mutableStateOf("Tutte") }
-    var selectedColor by remember { mutableStateOf("Tutti") }
     var searchQuery by remember { mutableStateOf("") }
     
     val searchResults by viewModel.searchResults.collectAsState()
@@ -63,17 +62,12 @@ fun SearchScreen(
                 selectedType = selectedType,
                 onTypeSelected = { 
                     selectedType = it
-                    viewModel.updateFilters(it, selectedSeason, selectedColor)
+                    viewModel.updateFilters(it, selectedSeason)
                 },
                 selectedSeason = selectedSeason,
                 onSeasonSelected = { 
                     selectedSeason = it
-                    viewModel.updateFilters(selectedType, it, selectedColor)
-                },
-                selectedColor = selectedColor,
-                onColorSelected = { 
-                    selectedColor = it
-                    viewModel.updateFilters(selectedType, selectedSeason, it)
+                    viewModel.updateFilters(selectedType, it)
                 }
             )
 
@@ -97,9 +91,7 @@ fun FilterSection(
     selectedType: String,
     onTypeSelected: (String) -> Unit,
     selectedSeason: String,
-    onSeasonSelected: (String) -> Unit,
-    selectedColor: String,
-    onColorSelected: (String) -> Unit
+    onSeasonSelected: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -120,16 +112,6 @@ fun FilterSection(
             options = listOf("Tutte", "primavera", "estate", "autunno", "inverno"),
             selectedOption = selectedSeason,
             onOptionSelected = onSeasonSelected
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Colore
-        FilterChipGroup(
-            title = "Colore",
-            options = listOf("Tutti", "Nero", "Bianco", "Blu", "Rosso", "Verde", "Giallo"),
-            selectedOption = selectedColor,
-            onOptionSelected = onColorSelected
         )
     }
 }

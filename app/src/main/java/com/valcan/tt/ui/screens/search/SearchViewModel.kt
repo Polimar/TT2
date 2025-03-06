@@ -36,13 +36,11 @@ class SearchViewModel @Inject constructor(
 
     private val _selectedType = MutableStateFlow("Tutti")
     private val _selectedSeason = MutableStateFlow("Tutte")
-    private val _selectedColor = MutableStateFlow("Tutti")
     private val _searchQuery = MutableStateFlow("")
 
     val searchResults: StateFlow<List<SearchItem>> = combine(
         _selectedType,
         _selectedSeason,
-        _selectedColor,
         _searchQuery.debounce(300),
         clothesRepository.getAllClothes(),
         shoesRepository.getAllShoes(),
@@ -51,12 +49,11 @@ class SearchViewModel @Inject constructor(
     ) { array ->
         val type = array[0] as String
         val season = array[1] as String
-        val color = array[2] as String
-        val query = array[3] as String
-        val clothes = safeCastToClothesList(array[4])
-        val shoes = safeCastToShoesList(array[5])
-        val wardrobes = safeCastToWardrobeList(array[6])
-        val user = array[7] as? User
+        val query = array[2] as String
+        val clothes = safeCastToClothesList(array[3])
+        val shoes = safeCastToShoesList(array[4])
+        val wardrobes = safeCastToWardrobeList(array[5])
+        val user = array[6] as? User
         
         if (user == null) return@combine emptyList()
 
@@ -68,8 +65,7 @@ class SearchViewModel @Inject constructor(
             clothes.filter { cloth ->
                 cloth.userId == user.userId &&
                 (query.isEmpty() || cloth.name.contains(query, ignoreCase = true)) &&
-                (season == "Tutte" || cloth.season == season) &&
-                (color == "Tutti" || cloth.color == color)
+                (season == "Tutte" || cloth.season == season)
             }.mapTo(results) { cloth ->
                 SearchItem(
                     id = cloth.id,
@@ -89,8 +85,7 @@ class SearchViewModel @Inject constructor(
             shoes.filter { shoe ->
                 shoe.userId == user.userId &&
                 (query.isEmpty() || shoe.name.contains(query, ignoreCase = true)) &&
-                (season == "Tutte" || shoe.season == season) &&
-                (color == "Tutti" || shoe.color == color)
+                (season == "Tutte" || shoe.season == season)
             }.mapTo(results) { shoe ->
                 SearchItem(
                     id = shoe.id,
@@ -112,10 +107,9 @@ class SearchViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    fun updateFilters(type: String, season: String, color: String) {
+    fun updateFilters(type: String, season: String) {
         _selectedType.value = type
         _selectedSeason.value = season
-        _selectedColor.value = color
     }
 
     fun updateSearchQuery(query: String) {

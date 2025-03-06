@@ -482,7 +482,30 @@ fun CreditsDialog(onDismiss: () -> Unit) {
                             .size(80.dp)
                             .padding(vertical = 16.dp)
                     )
+                                        Text(
+                        text = "Musica:",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
                     
+                    Text(
+                        text = "Valerio Canulli",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+                    
+                    // Kawaii immagine
+                    Image(
+                        painter = painterResource(id = R.drawable.music),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .padding(vertical = 16.dp)
+                    )
                     // Lorem ipsum per riempire
                     Text(
                         text = "Ringraziamenti",
