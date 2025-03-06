@@ -1,21 +1,35 @@
 package com.valcan.tt.ui.screens.profile
 
+import android.content.Intent
+import android.media.MediaPlayer
+import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.valcan.tt.R
@@ -32,6 +46,7 @@ import androidx.compose.runtime.setValue
 import com.valcan.tt.ui.navigation.Screen
 import com.valcan.tt.ui.components.BackupRestoreDialog
 import com.valcan.tt.ui.viewmodel.BackupRestoreViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +60,7 @@ fun ProfileScreen(
     var preselectedGender by remember { mutableStateOf<String?>(null) }
     val users by viewModel.users.collectAsState(initial = emptyList())
     var showBackupDialog by remember { mutableStateOf(false) }
+    var showCreditsDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = { TTBottomNavigation(navController = navController) }
@@ -107,7 +123,7 @@ fun ProfileScreen(
                         5 -> SettingButton(
                             icon = R.drawable.ic_info_kawaii,
                             contentDescription = "Info App",
-                            onClick = { /* TODO */ }
+                            onClick = { showCreditsDialog = true }
                         )
                     }
                 }
@@ -163,6 +179,10 @@ fun ProfileScreen(
         BackupRestoreDialog(
             onDismissRequest = { showBackupDialog = false }
         )
+    }
+
+    if (showCreditsDialog) {
+        CreditsDialog(onDismiss = { showCreditsDialog = false })
     }
 }
 
@@ -336,4 +356,293 @@ fun ProfileUserItem(
             )
         }
     }
-} 
+}
+
+@Composable
+fun CreditsDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.trendytracker) }
+    val scrollState = rememberScrollState()
+    var visible by remember { mutableStateOf(false) }
+    
+    // Gestione della durata della musica e della chiusura automatica
+    LaunchedEffect(key1 = Unit) {
+        // Avvia la musica quando il dialog appare
+        try {
+            mediaPlayer.isLooping = false  // Cambiato da true a false per permettere il completamento
+            mediaPlayer.setOnCompletionListener {
+                // Quando la musica finisce, avvia il fadeout
+                visible = false
+                // Piccolo ritardo prima di chiudere completamente il dialog
+               // kotlinx.coroutines.delay(2000)
+                // Rilascia le risorse e chiudi il dialog
+                mediaPlayer.release()
+                onDismiss()
+            }
+            mediaPlayer.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        
+        // Animazione di fade in
+        visible = true
+        
+        // Scroll automatico
+        while (scrollState.value < scrollState.maxValue) {
+            delay(60)
+            scrollState.scrollTo(scrollState.value + 2)
+        }
+    }
+    
+    DisposableEffect(Unit) {
+        onDispose {
+            try {
+                if (mediaPlayer.isPlaying) {
+                    mediaPlayer.stop()
+                }
+                mediaPlayer.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    
+    Dialog(
+        onDismissRequest = {
+            try {
+                if (mediaPlayer.isPlaying) {
+                    mediaPlayer.stop()
+                }
+                mediaPlayer.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            onDismiss()
+        },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(tween(2000)),
+            exit = androidx.compose.animation.fadeOut(tween(2000))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.9f))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(16.dp)
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(100.dp))
+                    
+                    // Titolo principale
+                    Text(
+                        text = "TrendyTracker",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+                    
+                    // Immagine logo
+                    Image(
+                        painter = painterResource(id = R.drawable.kawaii_logo),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(120.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    // Ringraziamenti
+                    Text(
+                        text = "Sviluppato da:",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    
+                    Text(
+                        text = "Valerio Canulli",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+                    
+                    // Kawaii immagine
+                    Image(
+                        painter = painterResource(id = R.drawable.settings),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    // Lorem ipsum per riempire
+                    Text(
+                        text = "Ringraziamenti",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 24.dp)
+                    )
+                    
+                    Image(
+                        painter = painterResource(id = R.drawable.thankyou),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    Text(
+                        text = "Francesca per l'esigenza",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    
+                    Image(
+                        painter = painterResource(id = R.drawable.speaking),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    Text(
+                        text = "Anastasia per tutte le gare",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    
+                    Image(
+                        painter = painterResource(id = R.drawable.rollerskate),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    Text(
+                        text = "Alice per la risata travolgente",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    
+                    Image(
+                        painter = painterResource(id = R.drawable.unicorn),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    Text(
+                        text = "e alla fine mia moglie Alessandra che mi ama immensamente senza farlo notare",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    
+                    Image(
+                        painter = painterResource(id = R.drawable.loveyourself),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(vertical = 16.dp)
+                    )
+                    
+                    // Aggiungo i crediti per le icone
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = "Credits",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
+                    )
+                    
+                    Text(
+                        text = "Icons made by Freepik from www.flaticon.com",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    ) {
+                        Text(
+                            text = "Visit: ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        
+                        Text(
+                            text = "www.freepik.com",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Cyan,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://www.freepik.com")
+                                )
+                                context.startActivity(intent)
+                            }
+                        )
+                        
+                        Text(
+                            text = " • ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        
+                        Text(
+                            text = "www.flaticon.com",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Cyan,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://www.flaticon.com")
+                                )
+                                context.startActivity(intent)
+                            }
+                        )
+                    }
+                    
+                    Text(
+                        text = "© 2025 TrendyTracker. Tutti i diritti riservati.",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 32.dp)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(100.dp))
+                }
+            }
+        }
+    }
+}

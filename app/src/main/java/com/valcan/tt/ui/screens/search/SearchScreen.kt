@@ -124,20 +124,6 @@ fun FilterSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Categoria
-        FilterChipGroup(
-            title = "Categoria",
-            options = if (selectedType == "Vestiti") {
-                listOf("Tutte", "Maglietta", "Pantaloni", "Giacca", "Altro")
-            } else {
-                listOf("Tutte", "Sneakers", "Eleganti", "Sportive", "Altro")
-            },
-            selectedOption = selectedCategory,
-            onOptionSelected = onCategorySelected
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         // Stagione
         FilterChipGroup(
             title = "Stagione",
