@@ -6,7 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -278,6 +280,7 @@ fun ClothDialog(
     var showCategoryDeleteConfirmation by remember { mutableStateOf<String?>(null) }
     
     val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(wardrobes) {
         val lastWardrobe = wardrobes.maxByOrNull { it.wardrobeId }
@@ -300,6 +303,8 @@ fun ClothDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+                    .verticalScroll(scrollState)
                     .padding(8.dp)
             ) {
                 Box(
@@ -598,6 +603,7 @@ fun WardrobeDialog(
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -613,6 +619,7 @@ fun WardrobeDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(scrollState)
                     .padding(8.dp)
             ) {
                 OutlinedTextField(

@@ -2,6 +2,7 @@ package com.valcan.tt.ui.screens.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -83,6 +84,7 @@ fun HomeScreen(
                     .size(120.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
+                    .clickable { navController.navigate("clothes") }
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -91,7 +93,7 @@ fun HomeScreen(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_clothes_kawaii),
-                        contentDescription = null,
+                        contentDescription = "Vai ai vestiti",
                         modifier = Modifier.size(48.dp)
                     )
                     Text(
@@ -111,6 +113,7 @@ fun HomeScreen(
                     .size(120.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.secondary)
+                    .clickable { navController.navigate("shoes") }
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -119,7 +122,7 @@ fun HomeScreen(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_shoes_kawaii),
-                        contentDescription = null,
+                        contentDescription = "Vai alle scarpe",
                         modifier = Modifier.size(48.dp)
                     )
                     Text(
