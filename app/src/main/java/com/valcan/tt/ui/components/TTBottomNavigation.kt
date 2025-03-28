@@ -57,4 +57,43 @@ fun TTBottomNavigation(
             )
         }
     }
+}
+
+@Composable
+fun TTBottomNavigationWithPager(
+    navController: NavController,
+    currentRoute: String,
+    onTabSelected: (Screen) -> Unit
+) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.primary
+    ) {
+        val items = listOf(
+            Screen.Home to R.drawable.ic_home_kawaii,
+            Screen.Clothes to R.drawable.ic_clothes_kawaii,
+            Screen.Shoes to R.drawable.ic_shoes_kawaii,
+            Screen.Search to R.drawable.ic_search_kawaii,
+            Screen.Profile to R.drawable.ic_profile_kawaii
+        )
+
+        items.forEach { (screen, iconRes) ->
+            val selected = currentRoute == screen.route
+            NavigationBarItem(
+                icon = {
+                    Image(
+                        painter = painterResource(iconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(if (selected) 60.dp else 48.dp),
+                        colorFilter = if (!selected) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.5f) }) else null
+                    )
+                },
+                label = null,
+                selected = selected,
+                onClick = {
+                    onTabSelected(screen)
+                }
+            )
+        }
+    }
 } 

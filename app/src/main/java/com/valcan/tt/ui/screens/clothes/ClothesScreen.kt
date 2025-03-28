@@ -25,53 +25,59 @@ import com.valcan.tt.R
 import com.valcan.tt.data.model.Clothes
 import com.valcan.tt.ui.components.CameraDialog
 import com.valcan.tt.ui.components.TTBottomNavigation
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.text.font.FontWeight
 
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClothesScreen(
     navController: NavController,
     viewModel: ClothesViewModel = hiltViewModel()
 ) {
-    var showNewClothDialog by remember { mutableStateOf(false) }
-    val clothes by viewModel.clothes.collectAsState(initial = emptyList())
+    var showAddDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    val clothesList by viewModel.clothes.collectAsState()
+    val wardrobes by viewModel.wardrobes.collectAsState()
     var clothToEdit by remember { mutableStateOf<Clothes?>(null) }
-
-    Scaffold(
-        bottomBar = { TTBottomNavigation(navController = navController) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showNewClothDialog = true },
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_add_kawaii),
-                    contentDescription = "Aggiungi Vestito",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
-    ) { paddingValues ->
+    
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Titolo
             Text(
-                text = "Vestiti",
+                text = "I tuoi vestiti",
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 24.dp)
+                modifier = Modifier.padding(vertical = 16.dp)
             )
-
-            // Lista dei vestiti
+            
+            // Campo di ricerca
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { 
+                    searchQuery = it
+                    viewModel.updateSearchQuery(it)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Cerca vestiti...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                singleLine = true
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Lista vestiti
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(clothes) { cloth ->
+                items(clothesList) { cloth ->
                     ClothItem(
                         cloth = cloth,
                         onEdit = { clothToEdit = cloth },
@@ -80,12 +86,26 @@ fun ClothesScreen(
                 }
             }
         }
+        
+        // FAB per aggiungere un nuovo vestito
+        FloatingActionButton(
+            onClick = { showAddDialog = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_add_kawaii),
+                contentDescription = "Aggiungi vestito",
+                modifier = Modifier.size(40.dp)
+            )
+        }
     }
-
-    // Dialog per nuovo vestito
-    if (showNewClothDialog) {
+    
+    // Dialog per aggiungere un nuovo vestito
+    if (showAddDialog) {
         ClothDialog(
-            onDismiss = { showNewClothDialog = false },
+            onDismiss = { showAddDialog = false },
             onConfirm = { name, category, color, season, position, wardrobeId, imageUrl ->
                 viewModel.addCloth(Clothes(
                     name = name,
@@ -96,11 +116,11 @@ fun ClothesScreen(
                     wardrobeId = wardrobeId,
                     imageUrl = imageUrl
                 ))
-                showNewClothDialog = false
+                showAddDialog = false
             }
         )
     }
-
+    
     // Dialog per modifica vestito
     clothToEdit?.let { cloth ->
         ClothDialog(
@@ -135,11 +155,18 @@ fun ClothItem(
     onDelete: () -> Unit
 ) {
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showDetailDialog by remember { mutableStateOf(false) }
+    
+    // Per ottenere il nome dell'armadio
+    val clothesViewModel: ClothesViewModel = hiltViewModel()
+    val wardrobes by clothesViewModel.wardrobes.collectAsState()
+    val wardrobeName = wardrobes.find { it.wardrobeId == cloth.wardrobeId }?.name ?: "Non in armadio"
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { showDetailDialog = !showDetailDialog },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -192,6 +219,11 @@ fun ClothItem(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
+                    text = "Colore: ${cloth.color}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+                Text(
                     text = "Stagione: ${cloth.season}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
@@ -207,7 +239,10 @@ fun ClothItem(
                     contentDescription = "Modifica",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable(onClick = onEdit)
+                        .clickable { 
+                            onEdit()
+                            showDetailDialog = false 
+                        }
                 )
                 Image(
                     painter = painterResource(id = R.drawable.ic_delete),
@@ -220,6 +255,7 @@ fun ClothItem(
         }
     }
 
+    // Dialog di conferma eliminazione
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
@@ -242,6 +278,89 @@ fun ClothItem(
                     Text("Annulla")
                 }
             }
+        )
+    }
+    
+    // Dialog di dettaglio
+    if (showDetailDialog) {
+        AlertDialog(
+            onDismissRequest = { showDetailDialog = false },
+            title = { Text(cloth.name, style = MaterialTheme.typography.headlineSmall) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Immagine del vestito
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        if (cloth.imageUrl != null) {
+                            AsyncImage(
+                                model = cloth.imageUrl,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_clothes_kawaii),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Dettagli del vestito
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        DetailRow(label = "Categoria", value = cloth.category)
+                        DetailRow(label = "Colore", value = cloth.color)
+                        DetailRow(label = "Stagione", value = cloth.season)
+                        DetailRow(label = "Armadio", value = wardrobeName)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showDetailDialog = false }) {
+                    Text("Chiudi")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "$label:",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

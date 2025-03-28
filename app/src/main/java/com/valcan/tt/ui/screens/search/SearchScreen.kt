@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.MaterialTheme
-import com.valcan.tt.ui.components.TTBottomNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,15 +32,21 @@ fun SearchScreen(
     
     val searchResults by viewModel.searchResults.collectAsState()
     
-    Scaffold(
-        bottomBar = { TTBottomNavigation(navController = navController) }
-    ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Titolo
+            Text(
+                text = "Ricerca",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+            
             // Campo di ricerca
             OutlinedTextField(
                 value = searchQuery,
