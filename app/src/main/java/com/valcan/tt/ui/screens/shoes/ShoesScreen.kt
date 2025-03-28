@@ -33,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoesScreen(
-    navController: NavController,
+    @Suppress("UNUSED_PARAMETER") navController: NavController,
     viewModel: ShoesViewModel = hiltViewModel()
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
@@ -384,6 +384,7 @@ fun ShoeDialog(
     var wardrobeId by remember { mutableStateOf(initialWardrobeId) }
     var imageUrl by remember { mutableStateOf(initialImageUrl) }
     var showCamera by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
     
     val types by viewModel.types.collectAsState()
     var expandedSeason by remember { mutableStateOf(false) }
@@ -395,21 +396,71 @@ fun ShoeDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = if (initialName.isEmpty()) "Aggiungi scarpe" else "Modifica scarpe") },
+        title = {
+            Text(
+                text = if (initialName.isEmpty()) "Aggiungi scarpe" else "Modifica scarpe",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = 400.dp)
                     .verticalScroll(scrollState)
-                    .padding(vertical = 8.dp)
+                    .padding(8.dp)
             ) {
+                // Immagine
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imageUrl != null) {
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    IconButton(
+                        onClick = { showCamera = true },
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.photo),
+                            contentDescription = "Scatta foto"
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                
                 // Nome scarpe
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Nome") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && name.isBlank(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
                 )
+                if (showError && name.isBlank()) {
+                    Text(
+                        "Il nome è obbligatorio",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
@@ -425,34 +476,49 @@ fun ShoeDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(),
+                        isError = showError && type.isBlank(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                     
-                    ExposedDropdownMenu(
-                        expanded = expandedType,
-                        onDismissRequest = { expandedType = false }
-                    ) {
-                        // Opzione per aggiungere un nuovo tipo
-                        if (type.isNotBlank() && !types.contains(type)) {
-                            DropdownMenuItem(
-                                text = { Text("Aggiungi nuovo tipo: $type") },
-                                onClick = {
-                                    viewModel.addType(type)
-                                    expandedType = false
-                                }
-                            )
-                            Divider()
-                        }
-                        
-                        // Tipi esistenti
-                        types.forEach { savedType ->
-                            DropdownMenuItem(
-                                text = { Text(savedType) },
-                                onClick = {
-                                    type = savedType
-                                    expandedType = false
-                                }
-                            )
+                    if (types.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = expandedType,
+                            onDismissRequest = { expandedType = false }
+                        ) {
+                            // Opzione per aggiungere un nuovo tipo
+                            if (type.isNotBlank() && !types.contains(type)) {
+                                DropdownMenuItem(
+                                    text = { Text("Aggiungi nuovo tipo: $type") },
+                                    onClick = {
+                                        viewModel.addType(type)
+                                        expandedType = false
+                                    }
+                                )
+                                Divider()
+                            }
+                            
+                            // Tipi esistenti
+                            types.forEach { savedType ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(savedType)
+                                        }
+                                    },
+                                    onClick = {
+                                        type = savedType
+                                        expandedType = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -464,7 +530,12 @@ fun ShoeDialog(
                     value = color,
                     onValueChange = { color = it },
                     label = { Text("Colore") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && color.isBlank(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -476,12 +547,17 @@ fun ShoeDialog(
                 ) {
                     OutlinedTextField(
                         value = season ?: "",
-                        onValueChange = { season = it },
+                        onValueChange = {},
+                        readOnly = true,
                         label = { Text("Stagione") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSeason) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                     
                     ExposedDropdownMenu(
@@ -510,11 +586,16 @@ fun ShoeDialog(
                     OutlinedTextField(
                         value = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "",
                         onValueChange = { /* Ignora gli input manuali */ },
+                        readOnly = true,
                         label = { Text("Armadio") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                     
                     ExposedDropdownMenu(
@@ -540,32 +621,22 @@ fun ShoeDialog(
                         }
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Foto
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Foto: ${if (imageUrl != null) "Impostata" else "Nessuna"}")
-                    
-                    Button(onClick = { showCamera = true }) {
-                        Text("Scatta foto")
-                    }
-                }
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
-                    if (name.isNotBlank()) {
+                    if (name.isBlank() || type.isBlank() || color.isBlank()) {
+                        showError = true
+                    } else {
+                        if (type.isNotBlank() && !types.contains(type)) {
+                            viewModel.addType(type)
+                        }
                         onConfirm(name, type, color, season ?: "", wardrobeId, imageUrl)
                     }
                 }
             ) {
-                Text("Salva")
+                Text("Conferma")
             }
         },
         dismissButton = {

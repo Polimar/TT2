@@ -78,7 +78,7 @@ fun KawaiiDatePicker(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
+                        .height(150.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     // Cilindro per i giorni
@@ -93,7 +93,7 @@ fun KawaiiDatePicker(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
-                                .padding(bottom = 4.dp)
+                                .padding(bottom = 6.dp)
                         )
                         
                         // Rettangolo centrale evidenziato
@@ -101,7 +101,7 @@ fun KawaiiDatePicker(
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .fillMaxWidth()
-                                .height(40.dp)
+                                .height(50.dp)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                         )
                         
@@ -109,12 +109,12 @@ fun KawaiiDatePicker(
                             state = dayState,
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            contentPadding = PaddingValues(vertical = 40.dp) // Per far vedere 3 item
+                            contentPadding = PaddingValues(vertical = 50.dp) // Per far vedere 3 item
                         ) {
                             items(days) { day ->
                                 Box(
                                     modifier = Modifier
-                                        .height(40.dp)
+                                        .height(50.dp)
                                         .fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -124,7 +124,7 @@ fun KawaiiDatePicker(
                                         color = if (day == selectedDay) 
                                             MaterialTheme.colorScheme.primary 
                                         else 
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                                     )
                                 }
                             }
@@ -143,7 +143,7 @@ fun KawaiiDatePicker(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
-                                .padding(bottom = 4.dp)
+                                .padding(bottom = 6.dp)
                         )
                         
                         // Rettangolo centrale evidenziato
@@ -151,7 +151,7 @@ fun KawaiiDatePicker(
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .fillMaxWidth()
-                                .height(40.dp)
+                                .height(50.dp)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                         )
                         
@@ -159,12 +159,12 @@ fun KawaiiDatePicker(
                             state = monthState,
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            contentPadding = PaddingValues(vertical = 40.dp)
+                            contentPadding = PaddingValues(vertical = 50.dp)
                         ) {
                             items(months) { month ->
                                 Box(
                                     modifier = Modifier
-                                        .height(40.dp)
+                                        .height(50.dp)
                                         .fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -174,7 +174,7 @@ fun KawaiiDatePicker(
                                         color = if (month == selectedMonth) 
                                             MaterialTheme.colorScheme.primary 
                                         else 
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                                     )
                                 }
                             }
@@ -193,7 +193,7 @@ fun KawaiiDatePicker(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
-                                .padding(bottom = 4.dp)
+                                .padding(bottom = 6.dp)
                         )
                         
                         // Rettangolo centrale evidenziato
@@ -201,7 +201,7 @@ fun KawaiiDatePicker(
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .fillMaxWidth()
-                                .height(40.dp)
+                                .height(50.dp)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                         )
                         
@@ -209,12 +209,12 @@ fun KawaiiDatePicker(
                             state = yearState,
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            contentPadding = PaddingValues(vertical = 40.dp)
+                            contentPadding = PaddingValues(vertical = 50.dp)
                         ) {
                             items(years) { year ->
                                 Box(
                                     modifier = Modifier
-                                        .height(40.dp)
+                                        .height(50.dp)
                                         .fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -224,7 +224,7 @@ fun KawaiiDatePicker(
                                         color = if (year == selectedYear) 
                                             MaterialTheme.colorScheme.primary 
                                         else 
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                                     )
                                 }
                             }

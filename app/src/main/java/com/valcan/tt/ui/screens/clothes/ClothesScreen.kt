@@ -33,13 +33,12 @@ import androidx.compose.ui.text.font.FontWeight
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClothesScreen(
-    navController: NavController,
+    @Suppress("UNUSED_PARAMETER") navController: NavController,
     viewModel: ClothesViewModel = hiltViewModel()
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     val clothesList by viewModel.clothes.collectAsState()
-    val wardrobes by viewModel.wardrobes.collectAsState()
     var clothToEdit by remember { mutableStateOf<Clothes?>(null) }
     
     Box(modifier = Modifier.fillMaxSize()) {

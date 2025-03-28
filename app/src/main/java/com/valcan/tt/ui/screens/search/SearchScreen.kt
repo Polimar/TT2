@@ -23,7 +23,7 @@ import androidx.compose.material3.MaterialTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    navController: NavController,
+    @Suppress("UNUSED_PARAMETER") navController: NavController,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     var selectedType by remember { mutableStateOf("Tutti") }
