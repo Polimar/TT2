@@ -76,7 +76,7 @@ fun KawaiiDatePicker(
     // Dialog che contiene il selettore di data
     AlertDialog(
         onDismissRequest = onDismiss,  // Chiamato quando l'utente chiude il dialog
-        title = {
+        title = { 
             // Titolo del dialog
             Text(
                 "Seleziona la tua\ndata di nascita",
@@ -237,8 +237,8 @@ fun KawaiiDatePicker(
                     }
                     
                     // Cilindro per gli anni
-                    Box(
-                        modifier = Modifier
+                Box(
+                    modifier = Modifier
                             .weight(1.2f)  // Occupa 1.2 parti di spazio orizzontale (leggermente più largo)
                             .fillMaxHeight()  // Occupa tutta l'altezza disponibile
                     ) {
@@ -268,7 +268,7 @@ fun KawaiiDatePicker(
                                 ) {
 
                                     // Testo dell'anno
-                                    Text(
+                            Text(
                                         text = year.toString(),
                                         style = MaterialTheme.typography.titleMedium,  // Stile titolo medio
                                         color = if (year == selectedYear) 
@@ -311,4 +311,4 @@ fun KawaiiDatePicker(
             }
         }
     )
-}
+} 
