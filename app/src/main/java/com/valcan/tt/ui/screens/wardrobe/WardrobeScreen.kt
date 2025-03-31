@@ -270,16 +270,14 @@ fun WardrobeDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    if (name.isBlank() || description.isBlank()) {
-                        showError = true
-                    } else {
-                        onConfirm(name, description)
-                    }
+            Button(onClick = {
+                if (name.isNotBlank()) {
+                    onConfirm(name, description)
+                } else {
+                    showError = true
                 }
-            ) {
-                Text("Conferma")
+            }) {
+                Text("Salva")
             }
         },
         dismissButton = {

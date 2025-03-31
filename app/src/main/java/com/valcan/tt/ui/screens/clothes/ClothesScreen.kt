@@ -24,9 +24,7 @@ import coil.compose.AsyncImage
 import com.valcan.tt.R
 import com.valcan.tt.data.model.Clothes
 import com.valcan.tt.ui.components.CameraDialog
-import com.valcan.tt.ui.components.TTBottomNavigation
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.text.font.FontWeight
 
@@ -447,8 +445,8 @@ fun ClothDialog(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.photo),
-                            contentDescription = "Scatta foto",
-                              )
+                            contentDescription = "Scatta foto"
+                        )
                     }
                 }
 
@@ -485,7 +483,6 @@ fun ClothDialog(
                         label = { Text("Categoria") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategory) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(),
-                        isError = showError && category.isBlank(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             focusedLabelColor = MaterialTheme.colorScheme.primary
@@ -534,7 +531,6 @@ fun ClothDialog(
                     onValueChange = { color = it },
                     label = { Text("Colore") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = showError && color.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary
@@ -548,7 +544,7 @@ fun ClothDialog(
                     onExpandedChange = { expandedSeason = !expandedSeason }
                 ) {
                     OutlinedTextField(
-                        value = season,
+                        value = season.ifBlank { "tutte le stagioni" },
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Stagione") },
@@ -582,7 +578,6 @@ fun ClothDialog(
                     onValueChange = { position = it },
                     label = { Text("Posizione") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = showError && position.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary
@@ -602,6 +597,7 @@ fun ClothDialog(
                         label = { Text("Armadio") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        isError = showError && wardrobeId == null,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             focusedLabelColor = MaterialTheme.colorScheme.primary
@@ -621,39 +617,54 @@ fun ClothDialog(
                             )
                         }
                         
-                            DropdownMenuItem(
-                                text = { 
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            "Aggiungi nuovo armadio", 
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                },
-                                onClick = {
-                                    expandedWardrobe = false
-                                    showNewWardrobeDialog = true
+                        DropdownMenuItem(
+                            text = { 
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        "Aggiungi nuovo armadio", 
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
-                            )
-                        }
+                            },
+                            onClick = {
+                                expandedWardrobe = false
+                                showNewWardrobeDialog = true
+                            }
+                        )
                     }
                 }
+                if (showError && wardrobeId == null) {
+                    Text(
+                        "L'armadio è obbligatorio",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (name.isBlank() || category.isBlank() || color.isBlank() || 
-                        season.isBlank() || position.isBlank()) {
+                    if (name.isBlank() || wardrobeId == null) {
                         showError = true
                     } else {
+                        val confirmedSeason = season.ifBlank { "tutte le stagioni" }
+                        
                         if (category.isNotBlank() && !categories.contains(category)) {
                             viewModel.addCategory(category)
                         }
-                        onConfirm(name, category, color, season, position, wardrobeId, imageUrl)
+                        
+                        if (wardrobeId == -1L) {
+                            val newWardrobeName = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "Nuovo Armadio"
+                            viewModel.addWardrobe(newWardrobeName, "")
+                            onConfirm(name, category, color, confirmedSeason, position, null, imageUrl)
+                        } else {
+                            onConfirm(name, category, color, confirmedSeason, position, wardrobeId, imageUrl)
+                        }
                     }
                 }
             ) {
@@ -716,53 +727,41 @@ fun ClothDialog(
 @Composable
 fun WardrobeDialog(
     onDismiss: () -> Unit,
-    onConfirm: (name: String, description: String?) -> Unit
+    onConfirm: (name: String, description: String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Nuovo Armadio",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-        },
+        title = { Text("Nuovo Armadio") },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome Armadio") },
+                    label = { Text("Nome") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = showError && name.isBlank(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
-                    )
+                    isError = showError && name.isBlank()
                 )
-
+                if (showError && name.isBlank()) {
+                    Text(
+                        text = "Il nome è obbligatorio",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                
                 Spacer(modifier = Modifier.height(8.dp))
-
+                
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descrizione (opzionale)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
-                    )
+                    label = { Text("Descrizione") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
@@ -772,7 +771,7 @@ fun WardrobeDialog(
                     if (name.isBlank()) {
                         showError = true
                     } else {
-                        onConfirm(name, description.ifBlank { null })
+                        onConfirm(name, description)
                     }
                 }
             ) {
@@ -785,4 +784,4 @@ fun WardrobeDialog(
             }
         }
     )
-} 
+}

@@ -24,9 +24,7 @@ import coil.compose.AsyncImage
 import com.valcan.tt.R
 import com.valcan.tt.data.model.Shoes
 import com.valcan.tt.ui.components.CameraDialog
-import com.valcan.tt.ui.components.TTBottomNavigation
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.text.font.FontWeight
 
@@ -139,7 +137,7 @@ fun ShoesScreen(
             initialName = shoe.name,
             initialType = shoe.type ?: "",
             initialColor = shoe.color ?: "",
-            initialSeason = shoe.season,
+            initialSeason = shoe.season ?: "",
             initialWardrobeId = shoe.wardrobeId,
             initialImageUrl = shoe.imageUrl,
             wardrobes = wardrobes
@@ -371,7 +369,7 @@ fun ShoeDialog(
     initialName: String = "",
     initialType: String = "",
     initialColor: String = "",
-    initialSeason: String? = null,
+    initialSeason: String = "",
     initialWardrobeId: Long? = null,
     initialImageUrl: String? = null,
     wardrobes: List<com.valcan.tt.data.model.Wardrobe>,
@@ -383,14 +381,13 @@ fun ShoeDialog(
     var season by remember { mutableStateOf(initialSeason) }
     var wardrobeId by remember { mutableStateOf(initialWardrobeId) }
     var imageUrl by remember { mutableStateOf(initialImageUrl) }
-    var showCamera by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
+    var showNewWardrobeDialog by remember { mutableStateOf(false) }
+    var showCamera by remember { mutableStateOf(false) }
     
-    val types by viewModel.types.collectAsState()
     var expandedSeason by remember { mutableStateOf(false) }
     var expandedWardrobe by remember { mutableStateOf(false) }
-    var expandedType by remember { mutableStateOf(false) }
-
+    
     val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
     val scrollState = rememberScrollState()
 
@@ -398,7 +395,7 @@ fun ShoeDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = if (initialName.isEmpty()) "Aggiungi scarpe" else "Modifica scarpe",
+                text = if (initialName.isEmpty()) "Nuove Scarpe" else "Modifica Scarpe",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -412,7 +409,6 @@ fun ShoeDialog(
                     .verticalScroll(scrollState)
                     .padding(8.dp)
             ) {
-                // Immagine
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -441,8 +437,7 @@ fun ShoeDialog(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Nome scarpe
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -461,92 +456,41 @@ fun ShoeDialog(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                // Tipo (es. scarpe da ginnastica, eleganti, ecc.)
-                ExposedDropdownMenuBox(
-                    expanded = expandedType,
-                    onExpandedChange = { expandedType = !expandedType }
-                ) {
-                    OutlinedTextField(
-                        value = type,
-                        onValueChange = { type = it },
-                        label = { Text("Tipo") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
-                        isError = showError && type.isBlank(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                    
-                    if (types.isNotEmpty()) {
-                        ExposedDropdownMenu(
-                            expanded = expandedType,
-                            onDismissRequest = { expandedType = false }
-                        ) {
-                            // Opzione per aggiungere un nuovo tipo
-                            if (type.isNotBlank() && !types.contains(type)) {
-                                DropdownMenuItem(
-                                    text = { Text("Aggiungi nuovo tipo: $type") },
-                                    onClick = {
-                                        viewModel.addType(type)
-                                        expandedType = false
-                                    }
-                                )
-                                Divider()
-                            }
-                            
-                            // Tipi esistenti
-                            types.forEach { savedType ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(savedType)
-                                        }
-                                    },
-                                    onClick = {
-                                        type = savedType
-                                        expandedType = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Colore
+
                 OutlinedTextField(
-                    value = color,
-                    onValueChange = { color = it },
-                    label = { Text("Colore") },
+                    value = type,
+                    onValueChange = { type = it },
+                    label = { Text("Tipo") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = showError && color.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                // Stagione
+
+                OutlinedTextField(
+                    value = color,
+                    onValueChange = { color = it },
+                    label = { Text("Colore") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 ExposedDropdownMenuBox(
                     expanded = expandedSeason,
                     onExpandedChange = { expandedSeason = !expandedSeason }
                 ) {
                     OutlinedTextField(
-                        value = season ?: "",
+                        value = season.ifBlank { "tutte le stagioni" },
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Stagione") },
@@ -559,57 +503,47 @@ fun ShoeDialog(
                             focusedLabelColor = MaterialTheme.colorScheme.primary
                         )
                     )
-                    
                     ExposedDropdownMenu(
                         expanded = expandedSeason,
                         onDismissRequest = { expandedSeason = false }
                     ) {
-                        seasons.forEach { seasonOption ->
+                        seasons.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text(seasonOption) },
+                                text = { Text(option) },
                                 onClick = {
-                                    season = seasonOption
+                                    season = option
                                     expandedSeason = false
                                 }
                             )
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                // Armadio
+
                 ExposedDropdownMenuBox(
                     expanded = expandedWardrobe,
                     onExpandedChange = { expandedWardrobe = !expandedWardrobe }
                 ) {
                     OutlinedTextField(
                         value = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "",
-                        onValueChange = { /* Ignora gli input manuali */ },
+                        onValueChange = {},
                         readOnly = true,
                         label = { Text("Armadio") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor(),
+                        isError = showError && wardrobeId == null,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             focusedLabelColor = MaterialTheme.colorScheme.primary
                         )
                     )
-                    
                     ExposedDropdownMenu(
                         expanded = expandedWardrobe,
                         onDismissRequest = { expandedWardrobe = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Nessun armadio") },
-                            onClick = {
-                                wardrobeId = null
-                                expandedWardrobe = false
-                            }
-                        )
-                        
                         wardrobes.forEach { wardrobe ->
                             DropdownMenuItem(
                                 text = { Text(wardrobe.name) },
@@ -619,20 +553,44 @@ fun ShoeDialog(
                                 }
                             )
                         }
+                        
+                        DropdownMenuItem(
+                            text = { 
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        "Aggiungi nuovo armadio", 
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            onClick = {
+                                expandedWardrobe = false
+                                showNewWardrobeDialog = true
+                            }
+                        )
                     }
+                }
+                if (showError && wardrobeId == null) {
+                    Text(
+                        "L'armadio è obbligatorio",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (name.isBlank() || type.isBlank() || color.isBlank()) {
+                    if (name.isBlank() || wardrobeId == null) {
                         showError = true
                     } else {
-                        if (type.isNotBlank() && !types.contains(type)) {
-                            viewModel.addType(type)
-                        }
-                        onConfirm(name, type, color, season ?: "", wardrobeId, imageUrl)
+                        val confirmedSeason = season.ifBlank { "tutte le stagioni" }
+                        onConfirm(name, type, color, confirmedSeason, wardrobeId, imageUrl)
                     }
                 }
             ) {
@@ -645,15 +603,86 @@ fun ShoeDialog(
             }
         }
     )
-    
-    // Dialog fotocamera
+
+    if (showNewWardrobeDialog) {
+        WardrobeDialog(
+            onDismiss = { showNewWardrobeDialog = false },
+            onConfirm = { wardrobeName, description ->
+                viewModel.addWardrobe(wardrobeName, description)
+                showNewWardrobeDialog = false
+            }
+        )
+    }
+
     if (showCamera) {
         CameraDialog(
-            onImageCaptured = { imageUri ->
-                imageUrl = imageUri.toString()
+            onImageCaptured = { uri ->
+                imageUrl = uri.toString()
                 showCamera = false
             },
             onDismiss = { showCamera = false }
         )
     }
+}
+
+@Composable
+fun WardrobeDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, description: String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Nuovo Armadio") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nome") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && name.isBlank()
+                )
+                if (showError && name.isBlank()) {
+                    Text(
+                        text = "Il nome è obbligatorio",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Descrizione") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isBlank()) {
+                        showError = true
+                    } else {
+                        onConfirm(name, description)
+                    }
+                }
+            ) {
+                Text("Conferma")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annulla")
+            }
+        }
+    )
 } 

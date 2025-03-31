@@ -2,11 +2,8 @@ package com.valcan.tt.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -106,7 +103,6 @@ fun MainScreenWithPager(
     Scaffold(
         bottomBar = {
             TTBottomNavigationWithPager(
-                navController = navController,
                 currentRoute = currentRoute.value,
                 onTabSelected = { screen ->
                     val newIndex = pages.indexOfFirst { it.route == screen.route }

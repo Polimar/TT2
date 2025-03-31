@@ -19,16 +19,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.MaterialTheme
+import com.valcan.tt.ui.screens.clothes.ClothesViewModel
+import com.valcan.tt.ui.screens.shoes.ShoesViewModel
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
+import com.valcan.tt.R
+import com.valcan.tt.ui.screens.clothes.DetailRow
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     @Suppress("UNUSED_PARAMETER") navController: NavController,
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel(),
+    clothesViewModel: ClothesViewModel = hiltViewModel(),
+    shoesViewModel: ShoesViewModel = hiltViewModel()
 ) {
     var selectedType by remember { mutableStateOf("Tutti") }
     var selectedSeason by remember { mutableStateOf("Tutte") }
     var searchQuery by remember { mutableStateOf("") }
+    var showDetailDialog by remember { mutableStateOf<SearchItem?>(null) }
     
     val searchResults by viewModel.searchResults.collectAsState()
     
@@ -84,10 +95,21 @@ fun SearchScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(searchResults) { item ->
-                    SearchResultItem(item = item)
+                    SearchResultItem(item = item) {
+                        showDetailDialog = item
+                    }
                 }
             }
         }
+    }
+    
+    // Dialog di dettaglio
+    showDetailDialog?.let {
+        ItemDetailDialog(
+            item = it,
+            onDismiss = { showDetailDialog = null },
+            clothesViewModel = clothesViewModel
+        )
     }
 }
 
@@ -152,11 +174,15 @@ fun FilterChipGroup(
 }
 
 @Composable
-fun SearchResultItem(item: SearchItem) {
+fun SearchResultItem(
+    item: SearchItem,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -186,11 +212,11 @@ fun SearchResultItem(item: SearchItem) {
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Armadio: ${item.wardrobeName}",
+                    text = "Armadio: ${item.wardrobeName ?: "-"}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "${item.type} - ${item.season}",
+                    text = "${item.type} - ${item.season ?: "-"}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 if (item.color != null) {
@@ -202,4 +228,77 @@ fun SearchResultItem(item: SearchItem) {
             }
         }
     }
+}
+
+/**
+ * Dialog che mostra i dettagli di un SearchItem (vestito o scarpa)
+ */
+@Composable
+fun ItemDetailDialog(
+    item: SearchItem,
+    onDismiss: () -> Unit,
+    clothesViewModel: ClothesViewModel
+) {
+    val wardrobeName = item.wardrobeName ?: "Non in armadio"
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(item.name, style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Immagine dell'item
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    if (item.imageUrl != null) {
+                        AsyncImage(
+                            model = item.imageUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = if (item.type == "Vestito") R.drawable.ic_clothes_kawaii else R.drawable.ic_shoes_kawaii),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Dettagli dell'item
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    if (item.type == "Vestito") {
+                        DetailRow(label = "Categoria", value = item.category ?: "-")
+                    } else {
+                        DetailRow(label = "Tipo", value = item.category ?: "-")
+                    }
+                    DetailRow(label = "Colore", value = item.color ?: "-")
+                    DetailRow(label = "Stagione", value = item.season ?: "-")
+                    DetailRow(label = "Armadio", value = wardrobeName)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Chiudi")
+            }
+        }
+    )
 }

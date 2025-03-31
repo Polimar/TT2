@@ -65,7 +65,7 @@ class SearchViewModel @Inject constructor(
             clothes.filter { cloth ->
                 cloth.userId == user.userId &&
                 (query.isEmpty() || cloth.name.contains(query, ignoreCase = true)) &&
-                (season == "Tutte" || cloth.season == season)
+                (season == "Tutte" || cloth.season == season || cloth.season == "tutte le stagioni")
             }.mapTo(results) { cloth ->
                 SearchItem(
                     id = cloth.id,
@@ -85,7 +85,7 @@ class SearchViewModel @Inject constructor(
             shoes.filter { shoe ->
                 shoe.userId == user.userId &&
                 (query.isEmpty() || shoe.name.contains(query, ignoreCase = true)) &&
-                (season == "Tutte" || shoe.season == season)
+                (season == "Tutte" || shoe.season == season || shoe.season == "tutte le stagioni")
             }.mapTo(results) { shoe ->
                 SearchItem(
                     id = shoe.id,
@@ -141,9 +141,4 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    // Helper per verificare se un testo contiene i termini di ricerca
-    private fun containsSearchTerm(text: String?, query: String): Boolean {
-        if (text == null) return false
-        return text.contains(query, ignoreCase = true)
-    }
 } 
