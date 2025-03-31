@@ -1,0 +1,153 @@
+<resources>
+    <string name="app_name">TrendyTracker</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_clothes">Vestiti</string>
+    <string name="nav_shoes">Scarpe</string>
+    <string name="nav_search">Ricerca</string>
+    <string name="nav_profile">Profilo</string>
+    <string name="nav_wardrobes">Armadi</string>
+    
+    <!-- Profile Screen -->
+    <string name="profile_title">Impostazioni</string>
+    <string name="profile_select_users">Seleziona Utente</string>
+    <string name="profile_wardrobes">Armadi</string>
+    <string name="profile_new_user_male">Nuovo Utente M</string>
+    <string name="profile_new_user_female">Nuovo Utente F</string>
+    <string name="profile_backup">Backup</string>
+    <string name="profile_languages">Lingue</string>
+    <string name="profile_info">Info App</string>
+    
+    <!-- Edit Profile Dialog -->
+    <string name="edit_profile_title">Modifica Profilo</string>
+    <string name="edit_profile_name">Nome</string>
+    <string name="edit_profile_required">Obbligatorio</string>
+    <string name="edit_profile_birthday">Data di nascita</string>
+    <string name="edit_profile_gender">Genere</string>
+    <string name="edit_profile_male">Maschio</string>
+    <string name="edit_profile_female">Femmina</string>
+    <string name="edit_profile_save">Salva</string>
+    <string name="edit_profile_cancel">Annulla</string>
+    
+    <!-- Search Screen -->
+    <string name="search_title">Ricerca</string>
+    <string name="search_placeholder">Cerca per nome...</string>
+    <string name="search_type">Tipo</string>
+    <string name="search_all">Tutti</string>
+    <string name="search_clothes">Vestiti</string>
+    <string name="search_shoes">Scarpe</string>
+    <string name="search_season">Stagione</string>
+    <string name="search_all_seasons">Tutte</string>
+    <string name="search_spring">Primavera</string>
+    <string name="search_summer">Estate</string>
+    <string name="search_autumn">Autunno</string>
+    <string name="search_winter">Inverno</string>
+    <string name="search_no_results">Nessun risultato trovato</string>
+    
+    <!-- Clothes Screen -->
+    <string name="clothes_title">I tuoi Vestiti</string>
+    <string name="clothes_search">Cerca vestiti...</string>
+    <string name="clothes_add">Aggiungi Vestiti</string>
+    <string name="clothes_edit">Modifica</string>
+    <string name="clothes_delete">Elimina</string>
+    <string name="clothes_confirm_delete">Conferma Eliminazione</string>
+    <string name="clothes_confirm_delete_message">Sei sicuro di voler eliminare il vestito %1$s?</string>
+    <string name="clothes_detail_title">Dettagli Vestito</string>
+    <string name="clothes_category">Categoria</string>
+    <string name="clothes_color">Colore</string>
+    <string name="clothes_season">Stagione</string>
+    <string name="clothes_wardrobe">Armadio</string>
+    <string name="clothes_new">Nuovo Vestito</string>
+    <string name="clothes_edit_title">Modifica Vestito</string>
+    <string name="clothes_name">Nome</string>
+    <string name="clothes_name_required">Il nome è obbligatorio</string>
+    <string name="clothes_position">Posizione</string>
+    <string name="clothes_wardrobe_required">L\'armadio è obbligatorio</string>
+    <string name="clothes_wardrobe_none">Non in armadio</string>
+    <string name="clothes_add_wardrobe">Aggiungi nuovo armadio</string>
+    <string name="clothes_all_seasons">Tutte le stagioni</string>
+    
+    <!-- Shoes Screen -->
+    <string name="shoes_title">Le tue Scarpe</string>
+    <string name="shoes_search">Cerca scarpe...</string>
+    <string name="shoes_add">Aggiungi Scarpe</string>
+    <string name="shoes_new">Nuove Scarpe</string>
+    <string name="shoes_edit_title">Modifica Scarpe</string>
+    <string name="shoes_type">Tipo</string>
+    
+    <!-- Wardrobe Screen -->
+    <string name="wardrobe_title">I tuoi Armadi</string>
+    <string name="wardrobe_new">Nuovo Armadio</string>
+    <string name="wardrobe_edit">Modifica Armadio</string>
+    <string name="wardrobe_name">Nome</string>
+    <string name="wardrobe_description">Descrizione</string>
+    <string name="wardrobe_name_required">Il nome è obbligatorio</string>
+    <string name="wardrobe_description_required">La descrizione è obbligatoria</string>
+    <string name="wardrobe_created_at">Creato il %1$s</string>
+    <string name="wardrobe_confirm_delete_message">Sei sicuro di voler eliminare l\'armadio %1$s?</string>
+    
+    <!-- Common actions -->
+    <string name="action_save">Salva</string>
+    <string name="action_cancel">Annulla</string>
+    <string name="action_delete">Elimina</string>
+    <string name="action_edit">Modifica</string>
+    <string name="action_close">Chiudi</string>
+    <string name="action_confirm">Conferma</string>
+    
+    <!-- Seasons -->
+    <string name="season_spring">Primavera</string>
+    <string name="season_summer">Estate</string>
+    <string name="season_autumn">Autunno</string>
+    <string name="season_winter">Inverno</string>
+    <string name="season_all">Tutte le stagioni</string>
+    
+    <!-- Backup / Restore -->
+    <string name="backup_title">Backup e Ripristino</string>
+    <string name="backup_create">Crea Backup</string>
+    <string name="backup_restore">Ripristina da Backup</string>
+    <string name="backup_success">Backup creato con successo</string>
+    <string name="backup_failed">Impossibile creare il backup</string>
+    <string name="restore_success">Ripristino completato con successo</string>
+    <string name="restore_failed">Impossibile ripristinare i dati</string>
+    <string name="backup_select_file">Seleziona file .tt</string>
+    <string name="backup_completed">Backup completato con successo</string>
+    <string name="backup_analyze">Analisi del file di backup in corso…</string>
+    <string name="backup_invalid">File di backup non valido: dati mancanti</string>
+    <string name="backup_format_error">Errore analisi backup: formato dati non valido</string>
+    <string name="backup_analyze_error">Errore durante l\'analisi del backup</string>
+    <string name="restore_start">Inizio ripristino dei dati selezionati…</string>
+    <string name="restore_completed">Ripristino completato con successo</string>
+    <string name="backup_created_at">Backup creato il: %1$s</string>
+    <string name="backup_content">Contenuto: %1$d utenti, %2$d armadi, %3$d vestiti, %4$d scarpe</string>
+    <string name="backup_select_users">Seleziona gli utenti da ripristinare:</string>
+    <string name="backup_select_all">Seleziona tutti</string>
+    <string name="backup_select_data_types">Seleziona i tipi di dati da ripristinare:</string>
+    <string name="backup_note">Nota: Se selezioni vestiti o scarpe, verranno importati anche gli armadi necessari.</string>
+    <string name="action_restore">Ripristina</string>
+    <string name="backup_user_info">%1$s (Genere: %2$s, Compleanno: %3$s)</string>
+    
+    <!-- Language Dialog -->
+    <string name="language_dialog_title">Seleziona Lingua</string>
+    <string name="dialog_close">Chiudi</string>
+    <string name="profile_selected">Selezionata</string>
+    
+    <!-- Home Screen -->
+    <string name="home_welcome">Benvenuto %1$s!</string>
+    <string name="home_what_to_wear">Cosa ci mettiamo oggi?</string>
+    <string name="home_no_user">Nessun utente selezionato</string>
+    <string name="home_go_to_profile">Vai al profilo</string>
+    
+    <!-- Credits Dialog -->
+    <string name="credits_version">Versione 1.0</string>
+    <string name="credits_developer">Sviluppato da:</string>
+    <string name="credits_developer_name">Valerio Canulli</string>
+    <string name="credits_music">Musica:</string>
+    <string name="credits_music_name">Valerio Canulli</string>
+    <string name="credits_thanks">Ringraziamenti</string>
+    
+    <!-- Date Picker -->
+    <string name="date_day">Giorno</string>
+    <string name="date_month">Mese</string>
+    <string name="date_year">Anno</string>
+</resources> 

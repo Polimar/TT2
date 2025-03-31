@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,7 +43,7 @@ fun WardrobeScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_add_kawaii),
-                    contentDescription = "Aggiungi Armadio",
+                    contentDescription = stringResource(R.string.wardrobe_new),
                     modifier = Modifier.size(40.dp)
                 )
             }
@@ -57,7 +58,7 @@ fun WardrobeScreen(
         ) {
             // Titolo
             Text(
-                text = "Armadi",
+                text = stringResource(R.string.wardrobe_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(vertical = 24.dp)
@@ -141,7 +142,7 @@ fun WardrobeItem(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Creato il ${dateFormat.format(wardrobe.createdAt)}",
+                    text = stringResource(R.string.wardrobe_created_at, dateFormat.format(wardrobe.createdAt)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -153,14 +154,14 @@ fun WardrobeItem(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_edit),
-                    contentDescription = "Modifica",
+                    contentDescription = stringResource(R.string.action_edit),
                     modifier = Modifier
                         .size(24.dp)
                         .clickable(onClick = onEdit)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.ic_delete),
-                    contentDescription = "Elimina",
+                    contentDescription = stringResource(R.string.action_delete),
                     modifier = Modifier
                         .size(24.dp)
                         .clickable { showDeleteConfirmation = true }
@@ -172,8 +173,8 @@ fun WardrobeItem(
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text("Conferma eliminazione") },
-            text = { Text("Sei sicuro di voler eliminare l'armadio ${wardrobe.name}?") },
+            title = { Text(stringResource(R.string.clothes_confirm_delete)) },
+            text = { Text(stringResource(R.string.wardrobe_confirm_delete_message, wardrobe.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -181,14 +182,14 @@ fun WardrobeItem(
                         showDeleteConfirmation = false
                     }
                 ) {
-                    Text("Elimina")
+                    Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDeleteConfirmation = false }
                 ) {
-                    Text("Annulla")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -212,7 +213,7 @@ fun WardrobeDialog(
         onDismissRequest = onDismiss,
         title = { 
             Text(
-                text = if (initialName.isEmpty()) "Nuovo Armadio" else "Modifica Armadio",
+                text = if (initialName.isEmpty()) stringResource(R.string.wardrobe_new) else stringResource(R.string.wardrobe_edit),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -229,7 +230,7 @@ fun WardrobeDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome Armadio") },
+                    label = { Text(stringResource(R.string.wardrobe_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError && name.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -240,7 +241,7 @@ fun WardrobeDialog(
                 
                 if (showError && name.isBlank()) {
                     Text(
-                        "Il nome è obbligatorio",
+                        stringResource(R.string.wardrobe_name_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -251,7 +252,7 @@ fun WardrobeDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descrizione") },
+                    label = { Text(stringResource(R.string.wardrobe_description)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError && description.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -262,7 +263,7 @@ fun WardrobeDialog(
                 
                 if (showError && description.isBlank()) {
                     Text(
-                        "La descrizione è obbligatoria",
+                        stringResource(R.string.wardrobe_description_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -277,12 +278,12 @@ fun WardrobeDialog(
                     showError = true
                 }
             }) {
-                Text("Salva")
+                Text(stringResource(R.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Annulla")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

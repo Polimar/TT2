@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +28,11 @@ import com.valcan.tt.ui.components.CameraDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.text.font.FontWeight
+import com.valcan.tt.ui.screens.search.SEASON_SPRING
+import com.valcan.tt.ui.screens.search.SEASON_SUMMER
+import com.valcan.tt.ui.screens.search.SEASON_AUTUMN
+import com.valcan.tt.ui.screens.search.SEASON_WINTER
+import com.valcan.tt.ui.screens.search.SEASON_ALL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +55,7 @@ fun ShoesScreen(
         ) {
             // Titolo
             Text(
-                text = "Le tue scarpe",
+                text = stringResource(R.string.shoes_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -63,7 +69,7 @@ fun ShoesScreen(
                     viewModel.updateSearchQuery(it)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Cerca scarpe...") },
+                placeholder = { Text(stringResource(R.string.shoes_search)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 singleLine = true
             )
@@ -94,7 +100,7 @@ fun ShoesScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_add_kawaii),
-                contentDescription = "Aggiungi scarpe",
+                contentDescription = stringResource(R.string.shoes_add),
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -157,7 +163,7 @@ fun ShoeItem(
     // Per ottenere il nome dell'armadio
     val shoesViewModel: ShoesViewModel = hiltViewModel()
     val wardrobes by shoesViewModel.wardrobes.collectAsState()
-    val wardrobeName = wardrobes.find { it.wardrobeId == shoe.wardrobeId }?.name ?: "Non in armadio"
+    val wardrobeName = wardrobes.find { it.wardrobeId == shoe.wardrobeId }?.name ?: stringResource(R.string.clothes_wardrobe_none)
 
     Card(
         modifier = Modifier
@@ -211,17 +217,17 @@ fun ShoeItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Tipo: ${shoe.type ?: "-"}",
+                    text = stringResource(R.string.shoes_type) + ": ${shoe.type ?: "-"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Colore: ${shoe.color ?: "-"}",
+                    text = stringResource(R.string.clothes_color) + ": ${shoe.color ?: "-"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
                 Text(
-                    text = "Stagione: ${shoe.season ?: "-"}",
+                    text = stringResource(R.string.clothes_season) + ": ${shoe.season ?: "-"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -233,7 +239,7 @@ fun ShoeItem(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_edit),
-                    contentDescription = "Modifica",
+                    contentDescription = stringResource(R.string.action_edit),
                     modifier = Modifier
                         .size(24.dp)
                         .clickable { 
@@ -243,7 +249,7 @@ fun ShoeItem(
                 )
                 Image(
                     painter = painterResource(id = R.drawable.ic_delete),
-                    contentDescription = "Elimina",
+                    contentDescription = stringResource(R.string.action_delete),
                     modifier = Modifier
                         .size(24.dp)
                         .clickable { showDeleteConfirmation = true }
@@ -252,30 +258,12 @@ fun ShoeItem(
         }
     }
 
-    if (showDeleteConfirmation) {
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text("Conferma eliminazione") },
-            text = { Text("Sei sicuro di voler eliminare la scarpa ${shoe.name}?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete()
-                        showDeleteConfirmation = false
-                    }
-                ) {
-                    Text("Elimina")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDeleteConfirmation = false }
-                ) {
-                    Text("Annulla")
-                }
-            }
-        )
-    }
+    ShoeDeleteConfirmationDialog(
+        shoe = shoe,
+        onDismiss = { showDeleteConfirmation = false },
+        onDelete = { onDelete() },
+        showDeleteConfirmation = showDeleteConfirmation
+    )
     
     // Dialog di dettaglio
     if (showDetailDialog) {
@@ -322,16 +310,16 @@ fun ShoeItem(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        DetailRow(label = "Tipo", value = shoe.type ?: "-")
-                        DetailRow(label = "Colore", value = shoe.color ?: "-")
-                        DetailRow(label = "Stagione", value = shoe.season ?: "-")
-                        DetailRow(label = "Armadio", value = wardrobeName)
+                        DetailRow(label = stringResource(R.string.shoes_type), value = shoe.type ?: "-")
+                        DetailRow(label = stringResource(R.string.clothes_color), value = shoe.color ?: "-")
+                        DetailRow(label = stringResource(R.string.clothes_season), value = shoe.season ?: "-")
+                        DetailRow(label = stringResource(R.string.clothes_wardrobe), value = wardrobeName)
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showDetailDialog = false }) {
-                    Text("Chiudi")
+                    Text(stringResource(R.string.action_close))
                 }
             }
         )
@@ -357,6 +345,38 @@ fun DetailRow(label: String, value: String) {
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
+@Composable
+fun ShoeDeleteConfirmationDialog(
+    shoe: Shoes,
+    onDismiss: () -> Unit,
+    onDelete: () -> Unit,
+    showDeleteConfirmation: Boolean
+) {
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            title = { Text(stringResource(R.string.clothes_confirm_delete)) },
+            text = { Text(stringResource(R.string.clothes_confirm_delete_message, shoe.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+                    }
+                ) {
+                    Text(stringResource(R.string.action_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { onDismiss() }
+                ) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
         )
     }
 }
@@ -388,14 +408,25 @@ fun ShoeDialog(
     var expandedSeason by remember { mutableStateOf(false) }
     var expandedWardrobe by remember { mutableStateOf(false) }
     
-    val seasons = listOf("primavera", "estate", "autunno", "inverno", "tutte le stagioni")
+    // Mappatura tra etichette costanti e testi localizzati
+    val seasonMap = mapOf(
+        SEASON_SPRING to stringResource(R.string.search_spring),
+        SEASON_SUMMER to stringResource(R.string.search_summer),
+        SEASON_AUTUMN to stringResource(R.string.search_autumn),
+        SEASON_WINTER to stringResource(R.string.search_winter),
+        SEASON_ALL to stringResource(R.string.clothes_all_seasons)
+    )
+    
+    // Etichette costanti per le stagioni in un elenco ordinato
+    val seasonLabels = listOf(SEASON_SPRING, SEASON_SUMMER, SEASON_AUTUMN, SEASON_WINTER, SEASON_ALL)
+    
     val scrollState = rememberScrollState()
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = if (initialName.isEmpty()) "Nuove Scarpe" else "Modifica Scarpe",
+                text = if (initialName.isEmpty()) stringResource(R.string.shoes_new) else stringResource(R.string.shoes_edit_title),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -431,7 +462,7 @@ fun ShoeDialog(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.photo),
-                            contentDescription = "Scatta foto"
+                            contentDescription = null
                         )
                     }
                 }
@@ -441,7 +472,7 @@ fun ShoeDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome") },
+                    label = { Text(stringResource(R.string.clothes_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError && name.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -451,7 +482,7 @@ fun ShoeDialog(
                 )
                 if (showError && name.isBlank()) {
                     Text(
-                        "Il nome è obbligatorio",
+                        stringResource(R.string.clothes_name_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -462,7 +493,7 @@ fun ShoeDialog(
                 OutlinedTextField(
                     value = type,
                     onValueChange = { type = it },
-                    label = { Text("Tipo") },
+                    label = { Text(stringResource(R.string.shoes_type)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -475,7 +506,7 @@ fun ShoeDialog(
                 OutlinedTextField(
                     value = color,
                     onValueChange = { color = it },
-                    label = { Text("Colore") },
+                    label = { Text(stringResource(R.string.clothes_color)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -489,11 +520,18 @@ fun ShoeDialog(
                     expanded = expandedSeason,
                     onExpandedChange = { expandedSeason = !expandedSeason }
                 ) {
+                    // Mostra il testo tradotto nella UI
+                    val displaySeason = if (season.isBlank()) {
+                        seasonMap[SEASON_ALL] ?: ""
+                    } else {
+                        seasonMap[season] ?: season
+                    }
+                    
                     OutlinedTextField(
-                        value = season.ifBlank { "tutte le stagioni" },
+                        value = displaySeason,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Stagione") },
+                        label = { Text(stringResource(R.string.clothes_season)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSeason) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -507,11 +545,11 @@ fun ShoeDialog(
                         expanded = expandedSeason,
                         onDismissRequest = { expandedSeason = false }
                     ) {
-                        seasons.forEach { option ->
+                        seasonLabels.forEach { seasonLabel ->
                             DropdownMenuItem(
-                                text = { Text(option) },
+                                text = { Text(seasonMap[seasonLabel] ?: "") },
                                 onClick = {
-                                    season = option
+                                    season = seasonLabel
                                     expandedSeason = false
                                 }
                             )
@@ -529,7 +567,7 @@ fun ShoeDialog(
                         value = wardrobes.find { it.wardrobeId == wardrobeId }?.name ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Armadio") },
+                        label = { Text(stringResource(R.string.clothes_wardrobe)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedWardrobe) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -562,7 +600,7 @@ fun ShoeDialog(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        "Aggiungi nuovo armadio", 
+                                        stringResource(R.string.clothes_add_wardrobe), 
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                 }
@@ -576,7 +614,7 @@ fun ShoeDialog(
                 }
                 if (showError && wardrobeId == null) {
                     Text(
-                        "L'armadio è obbligatorio",
+                        stringResource(R.string.clothes_wardrobe_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -589,17 +627,17 @@ fun ShoeDialog(
                     if (name.isBlank() || wardrobeId == null) {
                         showError = true
                     } else {
-                        val confirmedSeason = season.ifBlank { "tutte le stagioni" }
+                        val confirmedSeason = if (season.isBlank()) SEASON_ALL else season
                         onConfirm(name, type, color, confirmedSeason, wardrobeId, imageUrl)
                     }
                 }
             ) {
-                Text("Conferma")
+                Text(stringResource(R.string.action_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Annulla")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -636,7 +674,7 @@ fun WardrobeDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nuovo Armadio") },
+        title = { Text(stringResource(R.string.wardrobe_new)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -644,13 +682,13 @@ fun WardrobeDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome") },
+                    label = { Text(stringResource(R.string.wardrobe_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError && name.isBlank()
                 )
                 if (showError && name.isBlank()) {
                     Text(
-                        text = "Il nome è obbligatorio",
+                        text = stringResource(R.string.wardrobe_name_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -661,7 +699,7 @@ fun WardrobeDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descrizione") },
+                    label = { Text(stringResource(R.string.wardrobe_description)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -676,12 +714,12 @@ fun WardrobeDialog(
                     }
                 }
             ) {
-                Text("Conferma")
+                Text(stringResource(R.string.action_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Annulla")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

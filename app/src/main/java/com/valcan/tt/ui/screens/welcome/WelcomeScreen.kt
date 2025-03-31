@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,7 +64,7 @@ fun WelcomeScreen(
             // Logo kawaii
             Image(
                 painter = painterResource(id = R.drawable.kawaii_logo),
-                contentDescription = "Kawaii Logo",
+                contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.size(500.dp),
                 contentScale = ContentScale.Fit
             )
@@ -122,7 +123,7 @@ fun NewUserDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Crea il tuo profilo", style = MaterialTheme.typography.titleLarge) },
+        title = { Text(stringResource(R.string.edit_profile_title), style = MaterialTheme.typography.titleLarge) },
         text = {
             Column(
                 modifier = Modifier
@@ -133,7 +134,7 @@ fun NewUserDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome") },
+                    label = { Text(stringResource(R.string.edit_profile_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError && name.isBlank(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -144,7 +145,7 @@ fun NewUserDialog(
                 
                 if (showError && name.isBlank()) {
                     Text(
-                        "Il nome è obbligatorio",
+                        stringResource(R.string.edit_profile_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -159,7 +160,7 @@ fun NewUserDialog(
                 val buttonText = if (isDateSelected) {
                     dateFormat.format(selectedDate)
                 } else {
-                    "Data di nascita"
+                    stringResource(R.string.edit_profile_birthday)
                 }
                 
                 KawaiiButton(
@@ -171,7 +172,7 @@ fun NewUserDialog(
                 
                 if (showError && !isDateSelected) {
                     Text(
-                        "La data di nascita è obbligatoria",
+                        stringResource(R.string.edit_profile_required),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -181,7 +182,7 @@ fun NewUserDialog(
                 
                 // Selezione genere con icone (solo se non è preselezionato)
                 if (preselectedGender == null) {
-                    Text("Seleziona il tuo genere", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.edit_profile_gender), style = MaterialTheme.typography.titleMedium)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -199,7 +200,7 @@ fun NewUserDialog(
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_male),
-                                contentDescription = "Maschio",
+                                contentDescription = stringResource(R.string.edit_profile_male),
                                 modifier = Modifier.size(60.dp)
                             )
                         }
@@ -217,7 +218,7 @@ fun NewUserDialog(
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_female),
-                                contentDescription = "Femmina",
+                                contentDescription = stringResource(R.string.edit_profile_female),
                                 modifier = Modifier.size(60.dp)
                             )
                         }
@@ -225,7 +226,7 @@ fun NewUserDialog(
                     
                     if (showError && selectedGender == null) {
                         Text(
-                            "La selezione del genere è obbligatoria",
+                            stringResource(R.string.edit_profile_required),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -244,7 +245,7 @@ fun NewUserDialog(
                     }
                 }
             ) {
-                Text("Conferma")
+                Text(stringResource(R.string.action_confirm))
             }
         }
     )
@@ -273,7 +274,7 @@ fun UserSelectionDialog(
         onDismissRequest = { /* Non permettiamo di chiudere il dialog */ },
         title = {
             Text(
-                "Benvenuto in TrendyTracker",
+                stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -309,7 +310,7 @@ fun UserSelectionDialog(
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
                         )
-                        Text("Conferma")
+                        Text(stringResource(R.string.action_confirm))
                     }
                 }
             }

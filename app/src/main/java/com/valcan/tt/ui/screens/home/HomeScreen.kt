@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,7 @@ fun HomeScreen(
         ) {
             // Titolo principale
             Text(
-                text = "Trendy Tracker",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(vertical = 24.dp)
@@ -61,7 +62,7 @@ fun HomeScreen(
             // Saluto utente
             if (currentUser != null) {
                 Text(
-                    text = "Benvenuto ${currentUser?.name}!",
+                    text = stringResource(R.string.home_welcome, currentUser?.name ?: ""),
                     style = MaterialTheme.typography.headlineMedium,
                     textAlign = TextAlign.Center
                 )
@@ -70,7 +71,7 @@ fun HomeScreen(
                 
                 // Cosa ci mettiamo oggi?
                 Text(
-                    text = "Cosa ci mettiamo oggi?",
+                    text = stringResource(R.string.home_what_to_wear),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(vertical = 16.dp)
@@ -88,7 +89,7 @@ fun HomeScreen(
                     HomeStatCard(
                         icon = R.drawable.ic_clothes_kawaii,
                         count = userClothes,
-                        title = "Vestiti",
+                        title = stringResource(R.string.nav_clothes),
                         onClick = { navController.navigate(Screen.Clothes.route) }
                     )
                     
@@ -96,14 +97,14 @@ fun HomeScreen(
                     HomeStatCard(
                         icon = R.drawable.ic_shoes_kawaii,
                         count = userShoes,
-                        title = "Scarpe",
+                        title = stringResource(R.string.nav_shoes),
                         onClick = { navController.navigate(Screen.Shoes.route) }
                     )
                 }
             } else {
                 // Se non c'è un utente, mostriamo un messaggio
                 Text(
-                    text = "Nessun utente selezionato",
+                    text = stringResource(R.string.home_no_user),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(vertical = 16.dp)
@@ -112,7 +113,7 @@ fun HomeScreen(
                 Button(
                     onClick = { navController.navigate(Screen.Profile.route) }
                 ) {
-                    Text("Vai al profilo")
+                    Text(stringResource(R.string.home_go_to_profile))
                 }
             }
         }

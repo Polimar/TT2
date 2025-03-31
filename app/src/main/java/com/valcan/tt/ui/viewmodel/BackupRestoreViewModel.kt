@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.valcan.tt.R
 import com.valcan.tt.data.AppDatabase
 import com.valcan.tt.data.model.Clothes
 import com.valcan.tt.data.model.Shoes
@@ -75,14 +76,14 @@ class BackupRestoreViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     Log.d(TAG, "=== INIZIO BACKUP ===")
-                    showToast("Inizio creazione backup...")
+                    showToastRes(R.string.backup_create)
                     
                     // 1. Recuperiamo tutti i dati dal database
                     val users = database.userDao().getAllUsers().first()
                     Log.d(TAG, "Users recuperati: ${users.size}")
                     if (users.isEmpty()) {
                         Log.e(TAG, "Nessun utente trovato nel database!")
-                        showToast("Nessun utente trovato nel database")
+                        showToastRes(R.string.restore_failed)
                         return@withContext
                     }
 
@@ -229,11 +230,11 @@ class BackupRestoreViewModel @Inject constructor(
                         }
                     }
                     
-                    showToast("Backup completato con successo: ${users.size} utenti, ${wardrobes.size} armadi, ${clothes.size} vestiti, ${shoes.size} scarpe")
+                    showToastRes(R.string.backup_completed)
                     Log.d(TAG, "=== BACKUP COMPLETATO CON SUCCESSO ===")
                 } catch (e: Exception) {
                     Log.e(TAG, "Errore durante il backup", e)
-                    showToast("Errore durante il backup: ${e.message}")
+                    showToastRes(R.string.backup_failed)
                     e.printStackTrace()
                 }
             }
@@ -246,7 +247,7 @@ class BackupRestoreViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     Log.d(TAG, "=== ANALISI BACKUP ===")
-                    showToast("Analisi del file di backup...")
+                    showToastRes(R.string.backup_analyze)
                     
                     // Creiamo una directory temporanea per estrarre il backup
                     val tempDir = File(context.cacheDir, "temp_backup_analyze")
@@ -283,7 +284,7 @@ class BackupRestoreViewModel @Inject constructor(
                     
                     if (jsonData == null) {
                         Log.e(TAG, "File data.json non trovato nel backup")
-                        showToast("File di backup non valido: dati mancanti")
+                        showToastRes(R.string.backup_invalid)
                         return@withContext
                     }
                     
@@ -292,7 +293,7 @@ class BackupRestoreViewModel @Inject constructor(
                         json.decodeFromString<BackupDataDTO>(jsonData!!)
                     } catch (e: Exception) {
                         Log.e(TAG, "Errore decodifica JSON: ${e.message}")
-                        showToast("Errore analisi backup: formato dati non valido")
+                        showToastRes(R.string.backup_format_error)
                         return@withContext
                     }
                     
@@ -314,7 +315,7 @@ class BackupRestoreViewModel @Inject constructor(
                     
                 } catch (e: Exception) {
                     Log.e(TAG, "Errore durante l'analisi: ${e.message}")
-                    showToast("Errore durante l'analisi del backup: ${e.message}")
+                    showToastRes(R.string.backup_analyze_error)
                 }
             }
         }
@@ -325,7 +326,7 @@ class BackupRestoreViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     Log.d(TAG, "=== INIZIO RESTORE SELETTIVO ===")
-                    showToast("Inizio restore dei dati selezionati...")
+                    showToastRes(R.string.restore_start)
                     
                     // Creiamo una directory temporanea per estrarre il backup
                     val tempDir = File(context.cacheDir, "temp_backup")
@@ -585,14 +586,13 @@ class BackupRestoreViewModel @Inject constructor(
                     // Pulizia finale
                     tempDir.deleteRecursively()
                     
-                    val summarMsg = "Restore completato: $usersCount utenti, $wardrobesCount armadi, $clothesCount vestiti, $shoesCount scarpe"
                     Log.d(TAG, "=== RESTORE COMPLETATO CON SUCCESSO ===")
-                    showToast(summarMsg)
+                    showToastRes(R.string.restore_completed)
                     
                     _restoreComplete.value = true
                 } catch (e: Exception) {
                     Log.e(TAG, "Error during restore", e)
-                    showToast("Errore durante il restore: ${e.message}")
+                    showToastRes(R.string.restore_failed)
                     _restoreError.value = e.message
                     e.printStackTrace()
                 }
@@ -632,6 +632,12 @@ class BackupRestoreViewModel @Inject constructor(
     private fun showToast(message: String) {
         viewModelScope.launch(Dispatchers.Main) {
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private fun showToastRes(resId: Int) {
+        viewModelScope.launch(Dispatchers.Main) {
+            Toast.makeText(context, context.getString(resId), Toast.LENGTH_SHORT).show()
         }
     }
 }

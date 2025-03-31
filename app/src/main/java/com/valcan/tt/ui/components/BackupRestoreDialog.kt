@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,6 +19,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.valcan.tt.R
 import com.valcan.tt.ui.viewmodel.BackupRestoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +92,7 @@ fun BackupRestoreDialog(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Backup e Ripristino",
+                    text = stringResource(R.string.backup_title),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -99,12 +101,12 @@ fun BackupRestoreDialog(
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
-                        text = { Text("Backup") }
+                        text = { Text(stringResource(R.string.action_save)) }
                     )
                     Tab(
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
-                        text = { Text("Ripristino") }
+                        text = { Text(stringResource(R.string.backup_restore)) }
                     )
                 }
                 
@@ -122,7 +124,7 @@ fun BackupRestoreDialog(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "Crea un backup completo dell'app",
+                                    text = stringResource(R.string.backup_create),
                                     modifier = Modifier.padding(bottom = 16.dp)
                                 )
                                 Button(
@@ -130,7 +132,7 @@ fun BackupRestoreDialog(
                                         backupLauncher.launch("TT_Backup_${System.currentTimeMillis()}.tt")
                                     }
                                 ) {
-                                    Text("Crea Backup")
+                                    Text(stringResource(R.string.backup_create))
                                 }
                             }
                         }
@@ -140,7 +142,7 @@ fun BackupRestoreDialog(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "Ripristina da un backup esistente",
+                                    text = stringResource(R.string.backup_restore),
                                     modifier = Modifier.padding(bottom = 16.dp)
                                 )
                                 Button(
@@ -148,7 +150,7 @@ fun BackupRestoreDialog(
                                         restoreLauncher.launch(arrayOf("application/tt", "*/*"))
                                     }
                                 ) {
-                                    Text("Seleziona file .tt")
+                                    Text(stringResource(R.string.backup_restore))
                                 }
                             }
                         }
@@ -167,7 +169,7 @@ fun BackupRestoreDialog(
                             onDismissRequest()
                         }
                     ) {
-                        Text("Chiudi")
+                        Text(stringResource(R.string.action_close))
                     }
                 }
             }

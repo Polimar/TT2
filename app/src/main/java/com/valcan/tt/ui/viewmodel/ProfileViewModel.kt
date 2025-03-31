@@ -1,9 +1,11 @@
 package com.valcan.tt.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.valcan.tt.data.model.User
 import com.valcan.tt.data.repository.UserRepository
+import com.valcan.tt.utils.LocaleHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,6 +21,18 @@ class ProfileViewModel @Inject constructor(
     
     private val _showEditDialog = MutableStateFlow<User?>(null)
     val showEditDialog: StateFlow<User?> = _showEditDialog.asStateFlow()
+    
+    private val _currentLanguage = MutableStateFlow<String?>(null)
+    val currentLanguage: StateFlow<String?> = _currentLanguage.asStateFlow()
+    
+    fun initLanguage(context: Context) {
+        _currentLanguage.value = LocaleHelper.getSelectedLanguage(context)
+    }
+    
+    fun changeLanguage(context: Context, languageCode: String): Context {
+        _currentLanguage.value = languageCode
+        return LocaleHelper.setLocale(context, languageCode)
+    }
     
     fun updateCurrentUser(user: User) {
         userRepository.updateCurrentUser(user)

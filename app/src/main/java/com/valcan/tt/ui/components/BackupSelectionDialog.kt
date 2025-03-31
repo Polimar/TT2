@@ -7,10 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.valcan.tt.R
 import com.valcan.tt.ui.viewmodel.BackupInfo
 import com.valcan.tt.ui.viewmodel.UserDTO
 import java.text.SimpleDateFormat
@@ -56,28 +58,33 @@ fun BackupSelectionDialog(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Ripristino backup",
+                    text = stringResource(R.string.backup_restore),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 
                 Text(
-                    text = "Backup creato il: ${dateFormat.format(backupInfo.createdAt)}",
+                    text = stringResource(R.string.backup_created_at, dateFormat.format(backupInfo.createdAt)),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
                 Text(
-                    text = "Contenuto: ${backupInfo.usersCount} utenti, ${backupInfo.wardrobesCount} armadi, " +
-                            "${backupInfo.clothesCount} vestiti, ${backupInfo.shoesCount} scarpe",
+                    text = stringResource(
+                        R.string.backup_content, 
+                        backupInfo.usersCount, 
+                        backupInfo.wardrobesCount,
+                        backupInfo.clothesCount, 
+                        backupInfo.shoesCount
+                    ),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 
                 // Sezione di selezione utenti
                 Text(
-                    text = "Seleziona gli utenti da ripristinare:",
+                    text = stringResource(R.string.backup_select_users),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -87,7 +94,7 @@ fun BackupSelectionDialog(
                         checked = selectAllUsers,
                         onCheckedChange = { selectAllUsers = it }
                     )
-                    Text("Seleziona tutti")
+                    Text(stringResource(R.string.backup_select_all))
                 }
                 
                 LazyColumn(
@@ -108,7 +115,7 @@ fun BackupSelectionDialog(
                 
                 // Opzioni tipi di dati
                 Text(
-                    text = "Seleziona i tipi di dati da ripristinare:",
+                    text = stringResource(R.string.backup_select_data_types),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
@@ -121,7 +128,7 @@ fun BackupSelectionDialog(
                         checked = importWardrobes,
                         onCheckedChange = { importWardrobes = it }
                     )
-                    Text("Armadi")
+                    Text(stringResource(R.string.nav_wardrobes))
                 }
                 
                 Row(
@@ -132,7 +139,7 @@ fun BackupSelectionDialog(
                         checked = importClothes,
                         onCheckedChange = { importClothes = it }
                     )
-                    Text("Vestiti")
+                    Text(stringResource(R.string.nav_clothes))
                 }
                 
                 Row(
@@ -143,12 +150,12 @@ fun BackupSelectionDialog(
                         checked = importShoes,
                         onCheckedChange = { importShoes = it }
                     )
-                    Text("Scarpe")
+                    Text(stringResource(R.string.nav_shoes))
                 }
                 
                 // Nota informativa
                 Text(
-                    text = "Nota: Se selezioni vestiti o scarpe, verranno importati anche gli armadi necessari.",
+                    text = stringResource(R.string.backup_note),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -161,7 +168,7 @@ fun BackupSelectionDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismissRequest) {
-                        Text("Annulla")
+                        Text(stringResource(R.string.action_cancel))
                     }
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -175,7 +182,7 @@ fun BackupSelectionDialog(
                         },
                         enabled = usersSelectionState.any { it.value }
                     ) {
-                        Text("Ripristina")
+                        Text(stringResource(R.string.action_restore))
                     }
                 }
             }
@@ -199,15 +206,8 @@ fun UserSelectionItem(
             checked = isSelected,
             onCheckedChange = onSelectionChanged
         )
-        Column {
-            Text(
-                text = user.name,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = "Genere: ${user.gender}, Compleanno: ${user.birthday.take(10)}",
-                fontSize = 12.sp
-            )
-        }
+        Text(
+            text = stringResource(R.string.backup_user_info, user.name, user.gender, user.birthday.take(10))
+        )
     }
 } 

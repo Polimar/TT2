@@ -19,25 +19,46 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.MaterialTheme
-import com.valcan.tt.ui.screens.clothes.ClothesViewModel
-import com.valcan.tt.ui.screens.shoes.ShoesViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.valcan.tt.R
 import com.valcan.tt.ui.screens.clothes.DetailRow
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.valcan.tt.ui.screens.search.TYPE_ALL
+import com.valcan.tt.ui.screens.search.TYPE_CLOTHES
+import com.valcan.tt.ui.screens.search.TYPE_SHOES
+import com.valcan.tt.ui.screens.search.SEASON_ALL
+import com.valcan.tt.ui.screens.search.SEASON_SPRING
+import com.valcan.tt.ui.screens.search.SEASON_SUMMER
+import com.valcan.tt.ui.screens.search.SEASON_AUTUMN
+import com.valcan.tt.ui.screens.search.SEASON_WINTER
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     @Suppress("UNUSED_PARAMETER") navController: NavController,
-    viewModel: SearchViewModel = hiltViewModel(),
-    clothesViewModel: ClothesViewModel = hiltViewModel(),
-    shoesViewModel: ShoesViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel()
 ) {
-    var selectedType by remember { mutableStateOf("Tutti") }
-    var selectedSeason by remember { mutableStateOf("Tutte") }
+    // Mappatura tra etichette costanti e testi localizzati
+    val typeMap = mapOf(
+        TYPE_ALL to stringResource(R.string.search_all),
+        TYPE_CLOTHES to stringResource(R.string.search_clothes),
+        TYPE_SHOES to stringResource(R.string.search_shoes)
+    )
+    
+    val seasonMap = mapOf(
+        SEASON_ALL to stringResource(R.string.search_all_seasons),
+        SEASON_SPRING to stringResource(R.string.search_spring),
+        SEASON_SUMMER to stringResource(R.string.search_summer),
+        SEASON_AUTUMN to stringResource(R.string.search_autumn),
+        SEASON_WINTER to stringResource(R.string.search_winter)
+    )
+    
+    // Ora usiamo queste etichette costanti per lo stato
+    var selectedTypeLabel by remember { mutableStateOf(TYPE_ALL) }
+    var selectedSeasonLabel by remember { mutableStateOf(SEASON_ALL) }
     var searchQuery by remember { mutableStateOf("") }
     var showDetailDialog by remember { mutableStateOf<SearchItem?>(null) }
     
@@ -52,7 +73,7 @@ fun SearchScreen(
         ) {
             // Titolo
             Text(
-                text = "Ricerca",
+                text = stringResource(R.string.search_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -66,7 +87,7 @@ fun SearchScreen(
                     viewModel.updateSearchQuery(it)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Cerca per nome...") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 singleLine = true
             )
@@ -75,15 +96,17 @@ fun SearchScreen(
 
             // Filtri
             FilterSection(
-                selectedType = selectedType,
-                onTypeSelected = { 
-                    selectedType = it
-                    viewModel.updateFilters(it, selectedSeason)
+                typeMap = typeMap,
+                seasonMap = seasonMap,
+                selectedTypeLabel = selectedTypeLabel,
+                onTypeSelected = { typeLabel -> 
+                    selectedTypeLabel = typeLabel
+                    viewModel.updateFilters(typeLabel, selectedSeasonLabel)
                 },
-                selectedSeason = selectedSeason,
-                onSeasonSelected = { 
-                    selectedSeason = it
-                    viewModel.updateFilters(selectedType, it)
+                selectedSeasonLabel = selectedSeasonLabel,
+                onSeasonSelected = { seasonLabel -> 
+                    selectedSeasonLabel = seasonLabel
+                    viewModel.updateFilters(selectedTypeLabel, seasonLabel)
                 }
             )
 
@@ -95,9 +118,11 @@ fun SearchScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(searchResults) { item ->
-                    SearchResultItem(item = item) {
-                        showDetailDialog = item
-                    }
+                    SearchResultItem(
+                        item = item,
+                        typeMap = typeMap,
+                        onClick = { showDetailDialog = item }
+                    )
                 }
             }
         }
@@ -107,17 +132,19 @@ fun SearchScreen(
     showDetailDialog?.let {
         ItemDetailDialog(
             item = it,
-            onDismiss = { showDetailDialog = null },
-            clothesViewModel = clothesViewModel
+            typeMap = typeMap,
+            onDismiss = { showDetailDialog = null }
         )
     }
 }
 
 @Composable
 fun FilterSection(
-    selectedType: String,
+    typeMap: Map<String, String>,
+    seasonMap: Map<String, String>,
+    selectedTypeLabel: String,
     onTypeSelected: (String) -> Unit,
-    selectedSeason: String,
+    selectedSeasonLabel: String,
     onSeasonSelected: (String) -> Unit
 ) {
     Column(
@@ -125,9 +152,9 @@ fun FilterSection(
     ) {
         // Tipo (Vestiti/Scarpe)
         FilterChipGroup(
-            title = "Tipo",
-            options = listOf("Tutti", "Vestiti", "Scarpe"),
-            selectedOption = selectedType,
+            title = stringResource(R.string.search_type),
+            options = typeMap,
+            selectedOption = selectedTypeLabel,
             onOptionSelected = onTypeSelected
         )
 
@@ -135,9 +162,9 @@ fun FilterSection(
 
         // Stagione
         FilterChipGroup(
-            title = "Stagione",
-            options = listOf("Tutte", "primavera", "estate", "autunno", "inverno"),
-            selectedOption = selectedSeason,
+            title = stringResource(R.string.search_season),
+            options = seasonMap,
+            selectedOption = selectedSeasonLabel,
             onOptionSelected = onSeasonSelected
         )
     }
@@ -146,7 +173,7 @@ fun FilterSection(
 @Composable
 fun FilterChipGroup(
     title: String,
-    options: List<String>,
+    options: Map<String, String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit
 ) {
@@ -162,11 +189,11 @@ fun FilterChipGroup(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            options.forEach { option ->
+            options.forEach { (label, displayText) ->
                 FilterChip(
-                    selected = option == selectedOption,
-                    onClick = { onOptionSelected(option) },
-                    label = { Text(option) }
+                    selected = label == selectedOption,
+                    onClick = { onOptionSelected(label) },
+                    label = { Text(displayText) }
                 )
             }
         }
@@ -176,6 +203,7 @@ fun FilterChipGroup(
 @Composable
 fun SearchResultItem(
     item: SearchItem,
+    typeMap: Map<String, String>,
     onClick: () -> Unit
 ) {
     Card(
@@ -212,16 +240,16 @@ fun SearchResultItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Armadio: ${item.wardrobeName ?: "-"}",
+                    text = stringResource(R.string.clothes_wardrobe) + ": ${item.wardrobeName ?: "-"}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "${item.type} - ${item.season ?: "-"}",
+                    text = "${typeMap[item.type] ?: item.type} - ${item.season ?: "-"}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 if (item.color != null) {
                     Text(
-                        text = "Colore: ${item.color}",
+                        text = stringResource(R.string.clothes_color) + ": ${item.color}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -236,10 +264,11 @@ fun SearchResultItem(
 @Composable
 fun ItemDetailDialog(
     item: SearchItem,
-    onDismiss: () -> Unit,
-    clothesViewModel: ClothesViewModel
+    typeMap: Map<String, String>,
+    onDismiss: () -> Unit
 ) {
-    val wardrobeName = item.wardrobeName ?: "Non in armadio"
+    val wardrobeName = item.wardrobeName ?: stringResource(R.string.clothes_wardrobe_none)
+    val clothesTypeText = stringResource(R.string.search_clothes)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -268,7 +297,7 @@ fun ItemDetailDialog(
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = if (item.type == "Vestito") R.drawable.ic_clothes_kawaii else R.drawable.ic_shoes_kawaii),
+                            painter = painterResource(id = if (item.type == "clothes") R.drawable.ic_clothes_kawaii else R.drawable.ic_shoes_kawaii),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(80.dp)
@@ -284,20 +313,20 @@ fun ItemDetailDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    if (item.type == "Vestito") {
-                        DetailRow(label = "Categoria", value = item.category ?: "-")
+                    if (item.type == "clothes") {
+                        DetailRow(label = stringResource(R.string.clothes_category), value = item.category ?: "-")
                     } else {
-                        DetailRow(label = "Tipo", value = item.category ?: "-")
+                        DetailRow(label = stringResource(R.string.shoes_type), value = item.category ?: "-")
                     }
-                    DetailRow(label = "Colore", value = item.color ?: "-")
-                    DetailRow(label = "Stagione", value = item.season ?: "-")
-                    DetailRow(label = "Armadio", value = wardrobeName)
+                    DetailRow(label = stringResource(R.string.clothes_color), value = item.color ?: "-")
+                    DetailRow(label = stringResource(R.string.clothes_season), value = item.season ?: "-")
+                    DetailRow(label = stringResource(R.string.clothes_wardrobe), value = wardrobeName)
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Chiudi")
+                Text(stringResource(R.string.action_close))
             }
         }
     )

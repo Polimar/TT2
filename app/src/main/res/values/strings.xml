@@ -1,3 +1,155 @@
 <resources>
     <string name="app_name">TrendyTracker</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_clothes">Clothes</string>
+    <string name="nav_shoes">Shoes</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_wardrobes">Wardrobes</string>
+    
+    <!-- Profile Screen -->
+    <string name="profile_title">Settings</string>
+    <string name="profile_select_users">Select User</string>
+    <string name="profile_wardrobes">Wardrobes</string>
+    <string name="profile_new_user_male">New Male User</string>
+    <string name="profile_new_user_female">New Female User</string>
+    <string name="profile_backup">Backup</string>
+    <string name="profile_languages">Languages</string>
+    <string name="profile_info">App Info</string>
+    <string name="profile_confirm_delete">Confirm Delete</string>
+    <string name="profile_confirm_delete_message">Are you sure you want to delete the user %1$s?</string>
+    
+    <!-- Edit Profile Dialog -->
+    <string name="edit_profile_title">Edit Profile</string>
+    <string name="edit_profile_name">Name</string>
+    <string name="edit_profile_required">Required</string>
+    <string name="edit_profile_birthday">Birthday</string>
+    <string name="edit_profile_gender">Gender</string>
+    <string name="edit_profile_male">Male</string>
+    <string name="edit_profile_female">Female</string>
+    <string name="edit_profile_save">Save</string>
+    <string name="edit_profile_cancel">Cancel</string>
+    
+    <!-- Search Screen -->
+    <string name="search_title">Search</string>
+    <string name="search_placeholder">Search by name...</string>
+    <string name="search_type">Type</string>
+    <string name="search_all">All</string>
+    <string name="search_clothes">Clothes</string>
+    <string name="search_shoes">Shoes</string>
+    <string name="search_season">Season</string>
+    <string name="search_all_seasons">All</string>
+    <string name="search_spring">Spring</string>
+    <string name="search_summer">Summer</string>
+    <string name="search_autumn">Autumn</string>
+    <string name="search_winter">Winter</string>
+    <string name="search_no_results">No results found</string>
+    
+    <!-- Clothes Screen -->
+    <string name="clothes_title">Your Clothes</string>
+    <string name="clothes_search">Search clothes...</string>
+    <string name="clothes_add">Add Clothes</string>
+    <string name="clothes_edit">Edit</string>
+    <string name="clothes_delete">Delete</string>
+    <string name="clothes_confirm_delete">Confirm Delete</string>
+    <string name="clothes_confirm_delete_message">Are you sure you want to delete the item %1$s?</string>
+    <string name="clothes_detail_title">Clothes Details</string>
+    <string name="clothes_category">Category</string>
+    <string name="clothes_color">Color</string>
+    <string name="clothes_season">Season</string>
+    <string name="clothes_wardrobe">Wardrobe</string>
+    <string name="clothes_new">New Clothes</string>
+    <string name="clothes_edit_title">Edit Clothes</string>
+    <string name="clothes_name">Name</string>
+    <string name="clothes_name_required">Name is required</string>
+    <string name="clothes_position">Position</string>
+    <string name="clothes_wardrobe_required">Wardrobe is required</string>
+    <string name="clothes_wardrobe_none">Not in wardrobe</string>
+    <string name="clothes_add_wardrobe">Add new wardrobe</string>
+    <string name="clothes_all_seasons">All seasons</string>
+    
+    <!-- Shoes Screen -->
+    <string name="shoes_title">Your Shoes</string>
+    <string name="shoes_search">Search shoes...</string>
+    <string name="shoes_add">Add Shoes</string>
+    <string name="shoes_new">New Shoes</string>
+    <string name="shoes_edit_title">Edit Shoes</string>
+    <string name="shoes_type">Type</string>
+    
+    <!-- Wardrobe Screen -->
+    <string name="wardrobe_title">Your Wardrobes</string>
+    <string name="wardrobe_new">New Wardrobe</string>
+    <string name="wardrobe_edit">Edit Wardrobe</string>
+    <string name="wardrobe_name">Name</string>
+    <string name="wardrobe_description">Description</string>
+    <string name="wardrobe_name_required">Name is required</string>
+    <string name="wardrobe_description_required">Description is required</string>
+    <string name="wardrobe_created_at">Created on %1$s</string>
+    <string name="wardrobe_confirm_delete_message">Are you sure you want to delete the wardrobe %1$s?</string>
+    
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_close">Close</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_confirm">Confirm</string>
+    
+    <!-- Seasons -->
+    <string name="season_spring">Spring</string>
+    <string name="season_summer">Summer</string>
+    <string name="season_autumn">Autumn</string>
+    <string name="season_winter">Winter</string>
+    <string name="season_all">All seasons</string>
+    
+    <!-- Backup / Restore -->
+    <string name="backup_title">Backup and Restore</string>
+    <string name="backup_create">Create Backup</string>
+    <string name="backup_restore">Restore from Backup</string>
+    <string name="backup_success">Backup created successfully</string>
+    <string name="backup_failed">Could not create backup</string>
+    <string name="restore_success">Restore completed successfully</string>
+    <string name="restore_failed">Could not restore data</string>
+    <string name="backup_select_file">Select .tt file</string>
+    <string name="backup_completed">Backup completed successfully</string>
+    <string name="backup_analyze">Analyzing backup file…</string>
+    <string name="backup_invalid">Invalid backup file: missing data</string>
+    <string name="backup_format_error">Backup analysis error: invalid data format</string>
+    <string name="backup_analyze_error">Error analyzing backup</string>
+    <string name="restore_start">Starting to restore selected data…</string>
+    <string name="restore_completed">Restore completed successfully</string>
+    <string name="backup_created_at">Backup created on: %1$s</string>
+    <string name="backup_content">Content: %1$d users, %2$d wardrobes, %3$d clothes, %4$d shoes</string>
+    <string name="backup_select_users">Select users to restore:</string>
+    <string name="backup_select_all">Select all</string>
+    <string name="backup_select_data_types">Select data types to restore:</string>
+    <string name="backup_note">Note: If you select clothes or shoes, necessary wardrobes will also be imported.</string>
+    <string name="action_restore">Restore</string>
+    <string name="backup_user_info">%1$s (Gender: %2$s, Birthday: %3$s)</string>
+    
+    <!-- Language Dialog -->
+    <string name="language_dialog_title">Select Language</string>
+    <string name="dialog_close">Close</string>
+    <string name="profile_selected">Selected</string>
+    
+    <!-- Home Screen -->
+    <string name="home_welcome">Welcome %1$s!</string>
+    <string name="home_what_to_wear">What shall we wear today?</string>
+    <string name="home_no_user">No user selected</string>
+    <string name="home_go_to_profile">Go to profile</string>
+    
+    <!-- Credits Dialog -->
+    <string name="credits_version">Version 1.0</string>
+    <string name="credits_developer">Developed by:</string>
+    <string name="credits_developer_name">Valerio Canulli</string>
+    <string name="credits_music">Music:</string>
+    <string name="credits_music_name">Valerio Canulli</string>
+    <string name="credits_thanks">Thank you</string>
+    
+    <!-- Date Picker -->
+    <string name="date_day">Day</string>
+    <string name="date_month">Month</string>
+    <string name="date_year">Year</string>
 </resources>

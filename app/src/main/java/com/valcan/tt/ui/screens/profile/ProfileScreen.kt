@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -41,7 +42,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.valcan.tt.ui.navigation.Screen
 import com.valcan.tt.ui.components.BackupRestoreDialog
+import com.valcan.tt.utils.LocaleHelper
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.heightIn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +58,14 @@ fun ProfileScreen(
     val users by viewModel.users.collectAsState(initial = emptyList())
     var showBackupDialog by remember { mutableStateOf(false) }
     var showCreditsDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    
+    val context = LocalContext.current
+    
+    // Inizializza la lingua all'avvio
+    LaunchedEffect(Unit) {
+        viewModel.initLanguage(context)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -65,7 +76,7 @@ fun ProfileScreen(
         ) {
             // Titolo
             Text(
-                text = "Impostazioni",
+                text = stringResource(id = R.string.profile_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(vertical = 24.dp)
@@ -78,21 +89,21 @@ fun ProfileScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(6) { index ->
+                items(7) { index ->
                     when (index) {
                         0 -> SettingButton(
                             icon = R.drawable.ic_users_kawaii,
-                            contentDescription = "Selezione Utenti",
+                            contentDescription = stringResource(id = R.string.profile_select_users),
                             onClick = { showUserSelectionDialog = true }
                         )
                         1 -> SettingButton(
                             icon = R.drawable.ic_wardrobe_kawaii,
-                            contentDescription = "Armadi",
+                            contentDescription = stringResource(id = R.string.profile_wardrobes),
                             onClick = { navController.navigate(Screen.Wardrobe.route) }
                         )
                         2 -> SettingButton(
                             icon = R.drawable.ic_add_male_kawaii,
-                            contentDescription = "Nuovo Utente M",
+                            contentDescription = stringResource(id = R.string.profile_new_user_male),
                             onClick = { 
                                 preselectedGender = "M"
                                 showNewUserDialog = true
@@ -100,7 +111,7 @@ fun ProfileScreen(
                         )
                         3 -> SettingButton(
                             icon = R.drawable.ic_add_female_kawaii,
-                            contentDescription = "Nuovo Utente F",
+                            contentDescription = stringResource(id = R.string.profile_new_user_female),
                             onClick = { 
                                 preselectedGender = "F"
                                 showNewUserDialog = true
@@ -108,12 +119,17 @@ fun ProfileScreen(
                         )
                         4 -> SettingButton(
                             icon = R.drawable.ic_backup_kawaii,
-                            contentDescription = "Backup",
+                            contentDescription = stringResource(id = R.string.profile_backup),
                             onClick = { showBackupDialog = true }
                         )
                         5 -> SettingButton(
+                            icon = R.drawable.ic_languages,
+                            contentDescription = stringResource(id = R.string.profile_languages),
+                            onClick = { showLanguageDialog = true }
+                        )
+                        6 -> SettingButton(
                             icon = R.drawable.ic_info_kawaii,
-                            contentDescription = "Info App",
+                            contentDescription = stringResource(id = R.string.profile_info),
                             onClick = { showCreditsDialog = true }
                         )
                     }
@@ -171,6 +187,26 @@ fun ProfileScreen(
             onDismissRequest = { showBackupDialog = false }
         )
     }
+    
+    if (showLanguageDialog) {
+        LanguageDialog(
+            onDismiss = { showLanguageDialog = false },
+            onSelectLanguage = { languageCode ->
+                viewModel.changeLanguage(context, languageCode)
+                // Riavvia l'Activity per applicare il cambio lingua
+                val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                intent?.apply {
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(this)
+                }
+                // Simula l'effetto di riavvio dell'Activity corrente
+                (context as? androidx.activity.ComponentActivity)?.finish()
+                showLanguageDialog = false
+            },
+            currentLanguage = viewModel.currentLanguage.collectAsState().value ?: LocaleHelper.getDeviceLanguage(context)
+        )
+    }
 
     if (showCreditsDialog) {
         CreditsDialog(onDismiss = { showCreditsDialog = false })
@@ -214,7 +250,7 @@ fun ProfileUserSelectionDialog(
         onDismissRequest = { /* Non permettiamo di chiudere il dialog */ },
         title = {
             Text(
-                "Seleziona Utente",
+                stringResource(R.string.profile_select_users),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -252,7 +288,7 @@ fun ProfileUserSelectionDialog(
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
                         )
-                        Text("Conferma")
+                        Text(stringResource(R.string.action_confirm))
                     }
                 }
             }
@@ -263,8 +299,8 @@ fun ProfileUserSelectionDialog(
     showDeleteConfirmation?.let { userToDelete ->
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = null },
-            title = { Text("Conferma eliminazione") },
-            text = { Text("Sei sicuro di voler eliminare l'utente ${userToDelete.name}?") },
+            title = { Text(stringResource(R.string.profile_confirm_delete)) },
+            text = { Text(stringResource(R.string.profile_confirm_delete_message, userToDelete.name)) },
             confirmButton = {
                 KawaiiButton(
                     onClick = {
@@ -272,14 +308,14 @@ fun ProfileUserSelectionDialog(
                         showDeleteConfirmation = null
                     }
                 ) {
-                    Text("Elimina")
+                    Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
                 KawaiiButton(
                     onClick = { showDeleteConfirmation = null }
                 ) {
-                    Text("Annulla")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -333,14 +369,14 @@ fun ProfileUserItem(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_edit),
-                contentDescription = "Modifica",
+                contentDescription = stringResource(R.string.action_edit),
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(onClick = onEdit)
             )
             Image(
                 painter = painterResource(id = R.drawable.ic_delete),
-                contentDescription = "Elimina",
+                contentDescription = stringResource(R.string.action_delete),
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(onClick = onDelete)
@@ -351,310 +387,285 @@ fun ProfileUserItem(
 
 @Composable
 fun CreditsDialog(onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.trendytracker) }
     val scrollState = rememberScrollState()
-    var visible by remember { mutableStateOf(false) }
+    var showContent by remember { mutableStateOf(false) }
     
-    // Gestione della durata della musica e della chiusura automatica
-    LaunchedEffect(key1 = Unit) {
-        // Avvia la musica quando il dialog appare
-        try {
-            mediaPlayer.isLooping = false  // Cambiato da true a false per permettere il completamento
-            mediaPlayer.setOnCompletionListener {
-                // Quando la musica finisce, avvia il fadeout
-                visible = false
-                // Piccolo ritardo prima di chiudere completamente il dialog
-               // kotlinx.coroutines.delay(2000)
-                // Rilascia le risorse e chiudi il dialog
-                mediaPlayer.release()
-                onDismiss()
-            }
-            mediaPlayer.start()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    // Effetto per lo scorrimento automatico
+    LaunchedEffect(Unit) {
+        showContent = true
+        delay(1000)  // Piccolo ritardo prima di iniziare lo scorrimento
         
-        // Animazione di fade in
-        visible = true
-        
-        // Scroll automatico
-        while (scrollState.value < scrollState.maxValue) {
-            delay(60)
-            scrollState.scrollTo(scrollState.value + 2)
-        }
-    }
-    
-    DisposableEffect(Unit) {
-        onDispose {
-            try {
-                if (mediaPlayer.isPlaying) {
-                    mediaPlayer.stop()
-                }
-                mediaPlayer.release()
-            } catch (e: Exception) {
-                e.printStackTrace()
+        val maxScrollPosition = scrollState.maxValue
+        if (maxScrollPosition > 0) {
+            // Scroll lento fino alla fine del contenuto
+            val scrollDurationMillis = 15000L  // 15 secondi per scorrere tutto
+            val startTime = System.currentTimeMillis()
+            
+            while (scrollState.value < maxScrollPosition) {
+                val elapsedTime = System.currentTimeMillis() - startTime
+                val scrollPosition = (elapsedTime.toFloat() / scrollDurationMillis * maxScrollPosition).toInt()
+                    .coerceAtMost(maxScrollPosition)
+                
+                scrollState.scrollTo(scrollPosition)
+                delay(16)  // ~60fps
             }
         }
     }
-    
+
     Dialog(
-        onDismissRequest = {
-            try {
-                if (mediaPlayer.isPlaying) {
-                    mediaPlayer.stop()
-                }
-                mediaPlayer.release()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            onDismiss()
-        },
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true,
-            usePlatformDefaultWidth = false
-        )
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
     ) {
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(tween(2000)),
-            exit = androidx.compose.animation.fadeOut(tween(2000))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.9f))
+                    .fillMaxWidth()
+                    .heightIn(max = 500.dp)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(16.dp)
-                        .verticalScroll(scrollState),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                AnimatedVisibility(
+                    visible = showContent,
+                    enter = fadeIn(animationSpec = tween(1000))
                 ) {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    
-                    // Titolo principale
-                    Text(
-                        text = "TrendyTracker",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 32.dp)
-                    )
-                    
-                    // Immagine logo
-                    Image(
-                        painter = painterResource(id = R.drawable.kawaii_logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    
-                    // Ringraziamenti
-                    Text(
-                        text = "Sviluppato da:",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "Valerio Canulli",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 32.dp)
-                    )
-                    
-                    // Kawaii immagine
-                    Image(
-                        painter = painterResource(id = R.drawable.settings),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(80.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                                        Text(
-                        text = "Musica:",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "Valerio Canulli",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 32.dp)
-                    )
-                    
-                    // Kawaii immagine
-                    Image(
-                        painter = painterResource(id = R.drawable.music),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(80.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    // Lorem ipsum per riempire
-                    Text(
-                        text = "Ringraziamenti",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 24.dp)
-                    )
-                    
-                    Image(
-                        painter = painterResource(id = R.drawable.thankyou),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "Francesca per l'esigenza",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Image(
-                        painter = painterResource(id = R.drawable.speaking),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "Anastasia per tutte le gare",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Image(
-                        painter = painterResource(id = R.drawable.rollerskate),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "Alice per la risata travolgente",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Image(
-                        painter = painterResource(id = R.drawable.unicorn),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "e alla fine mia moglie Alessandra che mi ama immensamente senza farlo notare",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    
-                    Image(
-                        painter = painterResource(id = R.drawable.loveyourself),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(vertical = 16.dp)
-                    )
-                    
-                    // Aggiungo i crediti per le icone
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(
-                        text = "Credits",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-                    )
-                    
-                    Text(
-                        text = "Icons made by Freepik from www.flaticon.com",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(bottom = 24.dp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        // Logo
+                        Image(
+                            painter = painterResource(id = R.drawable.kawaii_logo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .padding(vertical = 16.dp)
+                        )
+                        
+                        // Titolo app
                         Text(
-                            text = "Visit: ",
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        
+                        // Versione
+                        Text(
+                            text = stringResource(R.string.credits_version),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 24.dp)
+                        )
+                        
+                        // Sviluppatore
+                        Text(
+                            text = stringResource(R.string.credits_developer),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 16.dp)
                         )
                         
                         Text(
-                            text = "www.freepik.com",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Cyan,
-                            modifier = Modifier.clickable {
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://www.freepik.com")
-                                )
-                                context.startActivity(intent)
-                            }
+                            text = stringResource(R.string.credits_developer_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 32.dp)
+                        )
+                        
+                        // Developer icon
+                        Image(
+                            painter = painterResource(id = R.drawable.settings),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .padding(vertical = 16.dp)
                         )
                         
                         Text(
-                            text = " • ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White
+                            text = stringResource(R.string.credits_music),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 16.dp)
                         )
                         
                         Text(
-                            text = "www.flaticon.com",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Cyan,
-                            modifier = Modifier.clickable {
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://www.flaticon.com")
-                                )
-                                context.startActivity(intent)
-                            }
+                            text = stringResource(R.string.credits_music_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 32.dp)
                         )
+                        
+                        // Kawaii immagine
+                        Image(
+                            painter = painterResource(id = R.drawable.music),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .padding(vertical = 16.dp)
+                        )
+                        // Lorem ipsum per riempire
+                        Text(
+                            text = stringResource(R.string.credits_thanks),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 24.dp)
+                        )
+                        
+                        // Chiudi
+                        Button(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(stringResource(R.string.action_close))
+                        }
                     }
-                    
-                    Text(
-                        text = "© 2025 TrendyTracker. Tutti i diritti riservati.",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 32.dp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LanguageDialog(
+    onDismiss: () -> Unit,
+    onSelectLanguage: (String) -> Unit,
+    currentLanguage: String
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(id = R.string.language_dialog_title),
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Italian
+                LanguageButton(
+                    languageCode = "it",
+                    languageName = "Italiano",
+                    iconRes = R.drawable.flag_it,
+                    isSelected = currentLanguage == "it",
+                    onClick = { onSelectLanguage("it") }
+                )
+                
+                // English
+                LanguageButton(
+                    languageCode = "en",
+                    languageName = "English",
+                    iconRes = R.drawable.flag_en,
+                    isSelected = currentLanguage == "en",
+                    onClick = { onSelectLanguage("en") }
+                )
+                
+                // French
+                LanguageButton(
+                    languageCode = "fr",
+                    languageName = "Français",
+                    iconRes = R.drawable.flag_fr,
+                    isSelected = currentLanguage == "fr",
+                    onClick = { onSelectLanguage("fr") }
+                )
+                
+                // German
+                LanguageButton(
+                    languageCode = "de",
+                    languageName = "Deutsch",
+                    iconRes = R.drawable.flag_de,
+                    isSelected = currentLanguage == "de",
+                    onClick = { onSelectLanguage("de") }
+                )
+                
+                // Spanish
+                LanguageButton(
+                    languageCode = "es",
+                    languageName = "Español",
+                    iconRes = R.drawable.flag_es,
+                    isSelected = currentLanguage == "es",
+                    onClick = { onSelectLanguage("es") }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.dialog_close))
+            }
+        }
+    )
+}
+
+@Composable
+fun LanguageButton(
+    languageCode: String,
+    languageName: String,
+    iconRes: Int,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+        ),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = "$languageName ($languageCode)",
+                modifier = Modifier.size(32.dp)
+            )
+            
+            Text(
+                text = languageName,
+                style = MaterialTheme.typography.titleMedium
+            )
+            
+            if (isSelected) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_check_kawaii),
+                        contentDescription = stringResource(R.string.profile_selected),
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
-                    
-                    Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         }

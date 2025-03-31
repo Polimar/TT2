@@ -9,39 +9,52 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.util.*
+import com.valcan.tt.R
 
 
 /**
  * Componente KawaiiDatePicker: un selettore di data in stile kawaii.
  * Permette all'utente di selezionare una data (giorno, mese, anno) attraverso tre colonne scorrevoli.
  * 
+ * @param initialDate data iniziale, se non fornita viene usata la data corrente
  * @param onDateSelected callback che viene invocata quando l'utente seleziona una data
  * @param onDismiss callback che viene invocata quando l'utente chiude il selettore
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KawaiiDatePicker(
-    //initialDate: Date = Date(),  // Parametro commentato, potremmo usarlo in futuro per inizializzare la data
+    initialDate: Date? = null,
     onDateSelected: (Date) -> Unit,  // Callback chiamata quando l'utente conferma la selezione
     onDismiss: () -> Unit  // Callback chiamata quando l'utente annulla la selezione
 ) {
-    // Otteniamo l'anno corrente per limitare la selezione degli anni
+    val calendar = Calendar.getInstance()
+    
+    // Inizializza con la data corrente o con la data passata
+    initialDate?.let {
+        calendar.time = it
+    }
+    
+    var selectedDay by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
+    var selectedMonth by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
+    var selectedYear by remember { mutableStateOf(calendar.get(Calendar.YEAR)) }
+    
+    // Lista dei giorni (1-31)
+    val days = (1..31).toList()
+    
+    // Lista dei mesi (0-11 => Gennaio-Dicembre)
+    val months = listOf(
+        "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+        "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
+    )
+    
+    // Lista degli anni (ultimi 100 anni)
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    
-    // Inizializziamo con valori di default per giorno, mese e anno
-    var selectedDay by remember { mutableStateOf(15) }
-    var selectedMonth by remember { mutableStateOf(6) }
-    var selectedYear by remember { mutableStateOf(2000) }
-    
-    // Creiamo le liste di valori per anni, mesi e giorni
-    // Replichiamo le liste per mesi e giorni tre volte per permettere lo scorrimento infinito
-    val years = (1936..currentYear).toList()  // Lista di anni dal 1936 ad oggi
-    val months = (1..12).toList() + (1..12).toList() + (1..12).toList()  // Lista di mesi replicata tre volte
-    val days = (1..31).toList() + (1..31).toList() + (1..31).toList()  // Lista di giorni replicata tre volte
+    val years = (currentYear - 100..currentYear).toList().reversed()
     
     // Stati per gestire la posizione iniziale e lo scorrimento delle liste
     val dayState = rememberLazyListState(initialFirstVisibleItemIndex = 31)  // Inizia dal secondo blocco di giorni
@@ -61,7 +74,7 @@ fun KawaiiDatePicker(
     LaunchedEffect(monthState.firstVisibleItemIndex) {
         val index = monthState.firstVisibleItemIndex + 1
         if (index < months.size) {
-            selectedMonth = months[index]  // Aggiorniamo il mese selezionato
+            selectedMonth = index  // Aggiorniamo il mese selezionato
         }
     }
     
@@ -79,7 +92,7 @@ fun KawaiiDatePicker(
         title = { 
             // Titolo del dialog
             Text(
-                "Seleziona la tua\ndata di nascita",
+                stringResource(R.string.edit_profile_birthday),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center  // Centrato orizzontalmente
@@ -104,7 +117,7 @@ fun KawaiiDatePicker(
                         contentAlignment = Alignment.Center  // Centra il contenuto
                     ) {
                         Text(
-                            text = "Giorno",
+                            stringResource(R.string.date_day),
                             style = MaterialTheme.typography.bodyLarge,  // Testo più grande
                             color = MaterialTheme.colorScheme.primary,  // Colore primario
                             fontWeight = FontWeight.Bold  // Testo in grassetto
@@ -117,7 +130,7 @@ fun KawaiiDatePicker(
                         contentAlignment = Alignment.Center  // Centra il contenuto
                     ) {
                         Text(
-                            text = "Mese",
+                            stringResource(R.string.date_month),
                             style = MaterialTheme.typography.bodyLarge,  // Testo più grande
                             color = MaterialTheme.colorScheme.primary,  // Colore primario
                             fontWeight = FontWeight.Bold  // Testo in grassetto
@@ -130,7 +143,7 @@ fun KawaiiDatePicker(
                         contentAlignment = Alignment.Center  // Centra il contenuto
                     ) {
                         Text(
-                            text = "Anno",
+                            text = stringResource(R.string.date_year),
                             style = MaterialTheme.typography.bodyLarge,  // Testo più grande
                             color = MaterialTheme.colorScheme.primary,  // Colore primario
                             fontWeight = FontWeight.Bold  // Testo in grassetto
@@ -225,11 +238,11 @@ fun KawaiiDatePicker(
                                     Text(
                                         text = month.toString(),
                                         style = MaterialTheme.typography.titleMedium,  // Stile titolo medio
-                                        color = if (month == selectedMonth) 
+                                        color = if (months.indexOf(month) == selectedMonth) 
                                             MaterialTheme.colorScheme.primary  // Colore primario per il mese selezionato
                                         else 
                                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),  // Colore con opacità variabile
-                                        fontWeight = if (month == selectedMonth) FontWeight.Bold else FontWeight.Normal  // Grassetto se selezionato
+                                        fontWeight = if (months.indexOf(month) == selectedMonth) FontWeight.Bold else FontWeight.Normal  // Grassetto se selezionato
                                     )
                                 }
                             }
@@ -239,7 +252,7 @@ fun KawaiiDatePicker(
                     // Cilindro per gli anni
                 Box(
                     modifier = Modifier
-                            .weight(1.2f)  // Occupa 1.2 parti di spazio orizzontale (leggermente più largo)
+                            .weight(1.2f)  // Occupa 1.2 parti di spazio orizzontale (leggermente più largo per ospitare 4 cifre)
                             .fillMaxHeight()  // Occupa tutta l'altezza disponibile
                     ) {
                         // Rettangolo centrale evidenziato (zona colorata)
@@ -266,7 +279,6 @@ fun KawaiiDatePicker(
                                         .fillMaxWidth(),  // Occupa tutta la larghezza disponibile
                                     contentAlignment = Alignment.Center  // Centra il contenuto
                                 ) {
-
                                     // Testo dell'anno
                             Text(
                                         text = year.toString(),
@@ -285,29 +297,28 @@ fun KawaiiDatePicker(
             }
         },
         confirmButton = {
-            // Pulsante di conferma
-            KawaiiButton(onClick = {
-                val calendar = Calendar.getInstance()  // Creiamo un nuovo calendario
-                
-                // Aggiunto controllo per giorni validi in base al mese
-                // (per gestire febbraio, mesi da 30 giorni, ecc.)
-                val adjustedDay = when (selectedMonth) {
-                    2 -> selectedDay.coerceAtMost(if (selectedYear % 4 == 0 && (selectedYear % 100 != 0 || selectedYear % 400 == 0)) 29 else 28)  // Febbraio con anni bisestili
-                    4, 6, 9, 11 -> selectedDay.coerceAtMost(30)  // Mesi da 30 giorni
-                    else -> selectedDay  // Altri mesi da 31 giorni
+            // Pulsante di conferma (Conferma/Seleziona)
+            TextButton(
+                onClick = {
+                    // Impostiamo la data selezionata
+                    calendar.set(selectedYear, selectedMonth, 1)
+                    // Aggiustiamo il giorno per evitare problemi di mesi con giorni diversi
+                    val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                    val adjustedDay = if (selectedDay > maxDay) maxDay else selectedDay
+                    calendar.set(Calendar.DAY_OF_MONTH, adjustedDay)
+                    onDateSelected(calendar.time)  // Chiamiamo la callback con la data selezionata
+                    onDismiss()  // Chiudiamo il dialog
                 }
-                
-                // Impostiamo la data selezionata
-                calendar.set(selectedYear, selectedMonth - 1, adjustedDay)  // Il mese in Calendar è 0-based
-                onDateSelected(calendar.time)  // Restituiamo la data selezionata
-            }) {
-                Text("Conferma")  // Testo del pulsante
+            ) {
+                Text(stringResource(R.string.action_confirm))
             }
         },
         dismissButton = {
-            // Pulsante di chiusura
-            TextButton(onClick = onDismiss) {  // Chiamato quando l'utente annulla
-                Text("Annulla")  // Testo del pulsante
+            // Pulsante di annullamento (Annulla)
+            TextButton(
+                onClick = onDismiss  // Chiude il dialog
+            ) {
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )

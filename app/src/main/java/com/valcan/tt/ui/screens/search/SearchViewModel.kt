@@ -14,9 +14,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
+// Etichette costanti per i tipi
+const val TYPE_ALL = "all"
+const val TYPE_CLOTHES = "clothes"
+const val TYPE_SHOES = "shoes"
+
+// Etichette costanti per le stagioni
+const val SEASON_ALL = "all"
+const val SEASON_SPRING = "spring"
+const val SEASON_SUMMER = "summer"
+const val SEASON_AUTUMN = "autumn"
+const val SEASON_WINTER = "winter"
+
 data class SearchItem(
     val id: Long,
-    val type: String, // "Vestito" o "Scarpa"
+    val type: String, // "clothes" o "shoes"
     val name: String,
     val imageUrl: String?,
     val color: String?,
@@ -34,8 +46,8 @@ class SearchViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _selectedType = MutableStateFlow("Tutti")
-    private val _selectedSeason = MutableStateFlow("Tutte")
+    private val _selectedType = MutableStateFlow(TYPE_ALL)
+    private val _selectedSeason = MutableStateFlow(SEASON_ALL)
     private val _searchQuery = MutableStateFlow("")
 
     val searchResults: StateFlow<List<SearchItem>> = combine(
@@ -60,16 +72,26 @@ class SearchViewModel @Inject constructor(
         val results = mutableListOf<SearchItem>()
         val wardrobeMap = wardrobes.associateBy { wardrobe -> wardrobe.wardrobeId }
 
+        // Mappa delle stagioni per la ricerca nel database
+        val seasonDbMap = mapOf(
+            SEASON_SPRING to "primavera",
+            SEASON_SUMMER to "estate",
+            SEASON_AUTUMN to "autunno",
+            SEASON_WINTER to "inverno"
+        )
+        
+        val seasonToSearch = if (season == SEASON_ALL) null else seasonDbMap[season]
+
         // Filtra vestiti
-        if (type == "Tutti" || type == "Vestiti") {
+        if (type == TYPE_ALL || type == TYPE_CLOTHES) {
             clothes.filter { cloth ->
                 cloth.userId == user.userId &&
                 (query.isEmpty() || cloth.name.contains(query, ignoreCase = true)) &&
-                (season == "Tutte" || cloth.season == season || cloth.season == "tutte le stagioni")
+                (seasonToSearch == null || cloth.season?.contains(seasonToSearch, ignoreCase = true) == true || cloth.season?.contains("tutte le stagioni", ignoreCase = true) == true)
             }.mapTo(results) { cloth ->
                 SearchItem(
                     id = cloth.id,
-                    type = "Vestito",
+                    type = TYPE_CLOTHES,
                     name = cloth.name,
                     imageUrl = cloth.imageUrl,
                     color = cloth.color,
@@ -81,15 +103,15 @@ class SearchViewModel @Inject constructor(
         }
 
         // Filtra scarpe
-        if (type == "Tutti" || type == "Scarpe") {
+        if (type == TYPE_ALL || type == TYPE_SHOES) {
             shoes.filter { shoe ->
                 shoe.userId == user.userId &&
                 (query.isEmpty() || shoe.name.contains(query, ignoreCase = true)) &&
-                (season == "Tutte" || shoe.season == season || shoe.season == "tutte le stagioni")
+                (seasonToSearch == null || shoe.season?.contains(seasonToSearch, ignoreCase = true) == true || shoe.season?.contains("tutte le stagioni", ignoreCase = true) == true)
             }.mapTo(results) { shoe ->
                 SearchItem(
                     id = shoe.id,
-                    type = "Scarpa",
+                    type = TYPE_SHOES,
                     name = shoe.name,
                     imageUrl = shoe.imageUrl,
                     color = shoe.color,

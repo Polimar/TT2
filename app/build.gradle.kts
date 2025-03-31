@@ -124,4 +124,7 @@ dependencies {
     // Accompanist Pager per lo scorrimento orizzontale
     implementation("com.google.accompanist:accompanist-pager:0.28.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+    
+    // Preferenze per il supporto multilingua
+    implementation("androidx.preference:preference-ktx:1.2.1")
 }

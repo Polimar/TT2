@@ -1,5 +1,6 @@
 package com.valcan.tt
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,14 +11,22 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.valcan.tt.ui.navigation.TTNavigation
 import com.valcan.tt.ui.theme.TTTheme
+import com.valcan.tt.utils.LocaleHelper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    
+    override fun attachBaseContext(newBase: Context) {
+        // Applica la lingua salvata o usa quella del dispositivo
+        super.attachBaseContext(LocaleHelper.applyLanguage(newBase))
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             TTTheme {
+                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -27,5 +36,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    
+    // Override anche onConfigurationChanged per gestire i cambi di configurazione
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Riapplica la lingua salvata quando cambia la configurazione
+        LocaleHelper.applyLanguage(this)
     }
 }
