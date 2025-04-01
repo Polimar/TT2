@@ -20,6 +20,7 @@
     <string name="profile_info">Info App</string>
     
     <!-- Edit Profile Dialog -->
+    <string name="profile_confirm_delete_message">Êtes-vous sûr de vouloir supprimer l\'utilisateur %1$s ?</string>
     <string name="edit_profile_title">Modifier Profil</string>
     <string name="edit_profile_name">Nom</string>
     <string name="edit_profile_required">Obligatoire</string>
@@ -139,15 +140,34 @@
     <string name="home_go_to_profile">Aller au profil</string>
     
     <!-- Credits Dialog -->
-    <string name="credits_version">Version 1.0</string>
-    <string name="credits_developer">Développé par:</string>
-    <string name="credits_developer_name">Valerio Canulli</string>
-    <string name="credits_music">Musique:</string>
-    <string name="credits_music_name">Valerio Canulli</string>
-    <string name="credits_thanks">Remerciements</string>
+    <string name="credits_version">Version 1.0.0</string>
+    <string name="credits_developer">Développeur</string>
+    <string name="credits_developer_name">ValCan</string>
+    <string name="credits_music">Musique</string>
+    <string name="credits_music_name">Trendy Tracker - ValCan</string>
+    <string name="credits_thanks">Merci à toutes les personnes qui m\'ont aidé dans ce projet</string>
+    <string name="credits_wife">Et enfin ma femme Alessandra qui m\'aime immensément sans le faire remarquer</string>
+    <string name="credits_title">Crédits</string>
     
     <!-- Date Picker -->
     <string name="date_day">Jour</string>
     <string name="date_month">Mois</string>
     <string name="date_year">Année</string>
+    <string name="month_january">Janvier</string>
+    <string name="month_february">Février</string>
+    <string name="month_march">Mars</string>
+    <string name="month_april">Avril</string>
+    <string name="month_may">Mai</string>
+    <string name="month_june">Juin</string>
+    <string name="month_july">Juillet</string>
+    <string name="month_august">Août</string>
+    <string name="month_september">Septembre</string>
+    <string name="month_october">Octobre</string>
+    <string name="month_november">Novembre</string>
+    <string name="month_december">Décembre</string>
+    <string name="profile_confirm_delete">Confirmer la suppression</string>
+    <string name="credits_fran">Francesca pour le besoin</string>
+    <string name="credits_ana">Anastasia pour toutes les compétitions</string>
+    <string name="credits_ali">Alice pour le rire bouleversant</string>
+    <string name="credits_copy">© 2025 TrendyTracker. Tous droits réservés.</string>
 </resources> 

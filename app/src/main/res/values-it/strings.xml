@@ -20,6 +20,8 @@
     <string name="profile_info">Info App</string>
     
     <!-- Edit Profile Dialog -->
+    <string name="profile_confirm_delete">Conferma Eliminazione</string>
+    <string name="profile_confirm_delete_message">Vuoi davvero eliminare l\'utente %1$s?</string>
     <string name="edit_profile_title">Modifica Profilo</string>
     <string name="edit_profile_name">Nome</string>
     <string name="edit_profile_required">Obbligatorio</string>
@@ -32,7 +34,7 @@
     
     <!-- Search Screen -->
     <string name="search_title">Ricerca</string>
-    <string name="search_placeholder">Cerca per nome...</string>
+    <string name="search_placeholder">Cerca per nome…</string>
     <string name="search_type">Tipo</string>
     <string name="search_all">Tutti</string>
     <string name="search_clothes">Vestiti</string>
@@ -47,7 +49,7 @@
     
     <!-- Clothes Screen -->
     <string name="clothes_title">I tuoi Vestiti</string>
-    <string name="clothes_search">Cerca vestiti...</string>
+    <string name="clothes_search">Cerca vestiti…</string>
     <string name="clothes_add">Aggiungi Vestiti</string>
     <string name="clothes_edit">Modifica</string>
     <string name="clothes_delete">Elimina</string>
@@ -70,7 +72,7 @@
     
     <!-- Shoes Screen -->
     <string name="shoes_title">Le tue Scarpe</string>
-    <string name="shoes_search">Cerca scarpe...</string>
+    <string name="shoes_search">Cerca scarpe…</string>
     <string name="shoes_add">Aggiungi Scarpe</string>
     <string name="shoes_new">Nuove Scarpe</string>
     <string name="shoes_edit_title">Modifica Scarpe</string>
@@ -139,15 +141,33 @@
     <string name="home_go_to_profile">Vai al profilo</string>
     
     <!-- Credits Dialog -->
-    <string name="credits_version">Versione 1.0</string>
-    <string name="credits_developer">Sviluppato da:</string>
-    <string name="credits_developer_name">Valerio Canulli</string>
-    <string name="credits_music">Musica:</string>
-    <string name="credits_music_name">Valerio Canulli</string>
-    <string name="credits_thanks">Ringraziamenti</string>
+    <string name="credits_version">Versione 1.0.0</string>
+    <string name="credits_developer">Sviluppatore</string>
+    <string name="credits_developer_name">ValCan</string>
+    <string name="credits_music">Musica</string>
+    <string name="credits_music_name">Trendy Tracker - ValCan</string>
+    <string name="credits_thanks">Grazie a tutte le persone che mi hanno aiutato in questo progetto</string>
+    <string name="credits_wife">E infine mia moglie Alessandra che mi ama immensamente senza farlo notare</string>
+    <string name="credits_title">Crediti</string>
     
     <!-- Date Picker -->
     <string name="date_day">Giorno</string>
     <string name="date_month">Mese</string>
     <string name="date_year">Anno</string>
+    <string name="month_january">Gennaio</string>
+    <string name="month_february">Febbraio</string>
+    <string name="month_march">Marzo</string>
+    <string name="month_april">Aprile</string>
+    <string name="month_may">Maggio</string>
+    <string name="month_june">Giugno</string>
+    <string name="month_july">Luglio</string>
+    <string name="month_august">Agosto</string>
+    <string name="month_september">Settembre</string>
+    <string name="month_october">Ottobre</string>
+    <string name="month_november">Novembre</string>
+    <string name="month_december">Dicembre</string>
+    <string name="credits_fran">Francesca per l\'esigenza</string>
+    <string name="credits_ana">Anastasia per tutte le gare</string>
+    <string name="credits_ali">Alice per la risata travolgente</string>
+    <string name="credits_copy">© 2025 TrendyTracker. Tutti i diritti riservati.</string>
 </resources> 

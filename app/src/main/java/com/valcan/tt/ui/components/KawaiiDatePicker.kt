@@ -1,5 +1,6 @@
 package com.valcan.tt.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +26,8 @@ import com.valcan.tt.R
  * @param onDateSelected callback che viene invocata quando l'utente seleziona una data
  * @param onDismiss callback che viene invocata quando l'utente chiude il selettore
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("FrequentlyChangedStateReadInComposition")
+
 @Composable
 fun KawaiiDatePicker(
     initialDate: Date? = null,
@@ -39,27 +41,24 @@ fun KawaiiDatePicker(
         calendar.time = it
     }
     
-    var selectedDay by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
-    var selectedMonth by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
-    var selectedYear by remember { mutableStateOf(calendar.get(Calendar.YEAR)) }
+    var selectedDay by remember { mutableIntStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
+    var selectedMonth by remember { mutableIntStateOf(calendar.get(Calendar.MONTH) + 1) }  // Aggiungiamo 1 per convertire da indice a numero
+    var selectedYear by remember { mutableIntStateOf(calendar.get(Calendar.YEAR)) }
     
     // Lista dei giorni (1-31)
-    val days = (1..31).toList()
+    val days = (1..31).toList() + (1..31).toList() + (1..31).toList()
     
-    // Lista dei mesi (0-11 => Gennaio-Dicembre)
-    val months = listOf(
-        "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
-        "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
-    )
+    // Lista dei mesi (1-12 ripetuti tre volte)
+    val months = (1..12).toList() + (1..12).toList() + (1..12).toList()
     
-    // Lista degli anni (ultimi 100 anni)
+    // Lista degli anni (ultimi 125 anni)
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val years = (currentYear - 100..currentYear).toList().reversed()
+    val years = (currentYear - 125..currentYear).toList().reversed()
     
     // Stati per gestire la posizione iniziale e lo scorrimento delle liste
-    val dayState = rememberLazyListState(initialFirstVisibleItemIndex = 31)  // Inizia dal secondo blocco di giorni
-    val monthState = rememberLazyListState(initialFirstVisibleItemIndex = 12)  // Inizia dal secondo blocco di mesi
-    val yearState = rememberLazyListState(initialFirstVisibleItemIndex = (years.size - 1) / 2)  // Inizia dalla metà della lista degli anni
+    val dayState = rememberLazyListState(initialFirstVisibleItemIndex = 31) // Inizia dal secondo blocco di giorni
+    val monthState = rememberLazyListState(initialFirstVisibleItemIndex = 18)  // Inizia dal secondo blocco di mesi
+    val yearState = rememberLazyListState(initialFirstVisibleItemIndex = (years.size - 25) / 2)  // Inizia dalla metà della lista degli anni
     
     // Aggiorniamo i valori selezionati quando cambia la posizione di scorrimento
     LaunchedEffect(dayState.firstVisibleItemIndex) {
@@ -74,7 +73,7 @@ fun KawaiiDatePicker(
     LaunchedEffect(monthState.firstVisibleItemIndex) {
         val index = monthState.firstVisibleItemIndex + 1
         if (index < months.size) {
-            selectedMonth = index  // Aggiorniamo il mese selezionato
+            selectedMonth = months[index]  // Aggiorniamo il mese selezionato
         }
     }
     
@@ -108,7 +107,7 @@ fun KawaiiDatePicker(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp),  // Aumentiamo lo spazio sotto le etichette
+                        .padding(bottom = 10.dp),  // Aumentiamo lo spazio sotto le etichette
                     horizontalArrangement = Arrangement.SpaceEvenly  // Distribuisce lo spazio uniformemente
                 ) {
                     // Etichetta Giorno
@@ -178,7 +177,7 @@ fun KawaiiDatePicker(
                             state = dayState,  // Stato della lista per gestire lo scorrimento
                             modifier = Modifier.fillMaxSize(),  // Occupa tutto lo spazio disponibile
                             horizontalAlignment = Alignment.CenterHorizontally,  // Centrato orizzontalmente
-                            contentPadding = PaddingValues(vertical = 10.dp)  // Padding verticale per mostrare elementi oltre i bordi visibili
+                            contentPadding = PaddingValues(vertical = 0.dp)  // Padding verticale per mostrare elementi oltre i bordi visibili
                         ) {
                             items(days) { day ->
                                 // Elemento della lista (giorno)
@@ -223,7 +222,7 @@ fun KawaiiDatePicker(
                             state = monthState,  // Stato della lista per gestire lo scorrimento
                             modifier = Modifier.fillMaxSize(),  // Occupa tutto lo spazio disponibile
                             horizontalAlignment = Alignment.CenterHorizontally,  // Centrato orizzontalmente
-                            contentPadding = PaddingValues(vertical = 10.dp)  // Padding verticale per mostrare elementi oltre i bordi visibili
+                            contentPadding = PaddingValues(vertical = 0.dp)  // Padding verticale per mostrare elementi oltre i bordi visibili
                         ) {
                             items(months) { month ->
                                 // Elemento della lista (mese)
@@ -233,25 +232,23 @@ fun KawaiiDatePicker(
                                         .fillMaxWidth(),  // Occupa tutta la larghezza disponibile
                                     contentAlignment = Alignment.Center  // Centra il contenuto
                                 ) {
-
                                     // Testo del mese
                                     Text(
                                         text = month.toString(),
-                                        style = MaterialTheme.typography.titleMedium,  // Stile titolo medio
-                                        color = if (months.indexOf(month) == selectedMonth) 
-                                            MaterialTheme.colorScheme.primary  // Colore primario per il mese selezionato
-                                        else 
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),  // Colore con opacità variabile
-                                        fontWeight = if (months.indexOf(month) == selectedMonth) FontWeight.Bold else FontWeight.Normal  // Grassetto se selezionato
-                                    )
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (month == selectedMonth)
+                                            MaterialTheme.colorScheme.primary
+                                        else
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                                    ) // Grassetto se selezionato
                                 }
                             }
                         }
                     }
                     
                     // Cilindro per gli anni
-                Box(
-                    modifier = Modifier
+                    Box(
+                        modifier = Modifier
                             .weight(1.2f)  // Occupa 1.2 parti di spazio orizzontale (leggermente più largo per ospitare 4 cifre)
                             .fillMaxHeight()  // Occupa tutta l'altezza disponibile
                     ) {
@@ -280,7 +277,7 @@ fun KawaiiDatePicker(
                                     contentAlignment = Alignment.Center  // Centra il contenuto
                                 ) {
                                     // Testo dell'anno
-                            Text(
+                                    Text(
                                         text = year.toString(),
                                         style = MaterialTheme.typography.titleMedium,  // Stile titolo medio
                                         color = if (year == selectedYear) 
@@ -301,7 +298,7 @@ fun KawaiiDatePicker(
             TextButton(
                 onClick = {
                     // Impostiamo la data selezionata
-                    calendar.set(selectedYear, selectedMonth, 1)
+                    calendar.set(selectedYear, selectedMonth - 1, 1)  // Sottraiamo 1 per convertire da numero a indice
                     // Aggiustiamo il giorno per evitare problemi di mesi con giorni diversi
                     val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
                     val adjustedDay = if (selectedDay > maxDay) maxDay else selectedDay

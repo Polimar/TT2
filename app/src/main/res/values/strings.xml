@@ -34,7 +34,7 @@
     
     <!-- Search Screen -->
     <string name="search_title">Search</string>
-    <string name="search_placeholder">Search by name...</string>
+    <string name="search_placeholder">Search by name…</string>
     <string name="search_type">Type</string>
     <string name="search_all">All</string>
     <string name="search_clothes">Clothes</string>
@@ -49,7 +49,7 @@
     
     <!-- Clothes Screen -->
     <string name="clothes_title">Your Clothes</string>
-    <string name="clothes_search">Search clothes...</string>
+    <string name="clothes_search">Search clothes…</string>
     <string name="clothes_add">Add Clothes</string>
     <string name="clothes_edit">Edit</string>
     <string name="clothes_delete">Delete</string>
@@ -72,7 +72,7 @@
     
     <!-- Shoes Screen -->
     <string name="shoes_title">Your Shoes</string>
-    <string name="shoes_search">Search shoes...</string>
+    <string name="shoes_search">Search shoes…</string>
     <string name="shoes_add">Add Shoes</string>
     <string name="shoes_new">New Shoes</string>
     <string name="shoes_edit_title">Edit Shoes</string>
@@ -141,15 +141,33 @@
     <string name="home_go_to_profile">Go to profile</string>
     
     <!-- Credits Dialog -->
-    <string name="credits_version">Version 1.0</string>
-    <string name="credits_developer">Developed by:</string>
-    <string name="credits_developer_name">Valerio Canulli</string>
-    <string name="credits_music">Music:</string>
-    <string name="credits_music_name">Valerio Canulli</string>
-    <string name="credits_thanks">Thank you</string>
+    <string name="credits_version">Version 1.0.0</string>
+    <string name="credits_developer">Developer</string>
+    <string name="credits_developer_name">ValCan</string>
+    <string name="credits_music">Music</string>
+    <string name="credits_music_name">Trendy Tracker - ValCan</string>
+    <string name="credits_thanks">Thanks to all the people who helped me in this project</string>
+    <string name="credits_wife">And finally my wife Alessandra who loves me immensely without making it obvious</string>
+    <string name="credits_title">Credits</string>
     
     <!-- Date Picker -->
     <string name="date_day">Day</string>
     <string name="date_month">Month</string>
     <string name="date_year">Year</string>
+    <string name="month_january">January</string>
+    <string name="month_february">February</string>
+    <string name="month_march">March</string>
+    <string name="month_april">April</string>
+    <string name="month_may">May</string>
+    <string name="month_june">June</string>
+    <string name="month_july">July</string>
+    <string name="month_august">August</string>
+    <string name="month_september">September</string>
+    <string name="month_october">October</string>
+    <string name="month_november">November</string>
+    <string name="month_december">December</string>
+    <string name="credits_fran">Francesca for the requirement</string>
+    <string name="credits_ana">Anastasia for all competitions</string>
+    <string name="credits_ali">Alice for the rousing laugh</string>
+    <string name="credits_copy">© 2025 TrendyTracker. All rights reserved.</string>
 </resources>

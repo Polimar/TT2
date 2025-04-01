@@ -2,7 +2,6 @@ package com.valcan.tt.ui.screens.profile
 
 import android.content.Intent
 import android.media.MediaPlayer
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -33,7 +32,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.valcan.tt.R
 import com.valcan.tt.data.model.User
-import com.valcan.tt.ui.components.TTBottomNavigation
 import com.valcan.tt.ui.components.KawaiiButton
 import com.valcan.tt.ui.screens.welcome.NewUserDialog
 import com.valcan.tt.ui.viewmodel.ProfileViewModel
@@ -45,8 +43,9 @@ import com.valcan.tt.ui.components.BackupRestoreDialog
 import com.valcan.tt.utils.LocaleHelper
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.heightIn
+import androidx.core.net.toUri
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun ProfileScreen(
     navController: NavController,
@@ -235,7 +234,6 @@ fun SettingButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileUserSelectionDialog(
     users: List<User>,
@@ -387,18 +385,32 @@ fun ProfileUserItem(
 
 @Composable
 fun CreditsDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.trendytracker) }
     var showContent by remember { mutableStateOf(false) }
-    
+    var visible by remember { mutableStateOf(false) }
+
     // Effetto per lo scorrimento automatico
     LaunchedEffect(Unit) {
+
         showContent = true
         delay(1000)  // Piccolo ritardo prima di iniziare lo scorrimento
-        
+        mediaPlayer.isLooping = false  // Cambiato da true a false per permettere il completamento
+        mediaPlayer.setOnCompletionListener {
+            // Quando la musica finisce, avvia il fadeout
+            visible = false
+            // Piccolo ritardo prima di chiudere completamente il dialog
+            // kotlinx.coroutines.delay(2000)
+            // Rilascia le risorse e chiudi il dialog
+            mediaPlayer.release()
+            onDismiss()
+        }
+        mediaPlayer.start()
         val maxScrollPosition = scrollState.maxValue
         if (maxScrollPosition > 0) {
             // Scroll lento fino alla fine del contenuto
-            val scrollDurationMillis = 15000L  // 15 secondi per scorrere tutto
+            val scrollDurationMillis = 30000L  // 30 secondi per scorrere tutto
             val startTime = System.currentTimeMillis()
             
             while (scrollState.value < maxScrollPosition) {
@@ -407,11 +419,22 @@ fun CreditsDialog(onDismiss: () -> Unit) {
                     .coerceAtMost(maxScrollPosition)
                 
                 scrollState.scrollTo(scrollPosition)
-                delay(16)  // ~60fps
+                delay(30)  // ~60fps
             }
         }
     }
-
+    DisposableEffect(Unit) {
+        onDispose {
+            try {
+                if (mediaPlayer.isPlaying) {
+                    mediaPlayer.stop()
+                }
+                mediaPlayer.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
@@ -435,7 +458,7 @@ fun CreditsDialog(onDismiss: () -> Unit) {
             ) {
                 AnimatedVisibility(
                     visible = showContent,
-                    enter = fadeIn(animationSpec = tween(1000))
+                    enter = fadeIn(animationSpec = tween(5000))
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -524,9 +547,149 @@ fun CreditsDialog(onDismiss: () -> Unit) {
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(vertical = 24.dp)
+                            modifier = Modifier.padding(vertical = 16.dp)
                         )
-                        
+                        Image(
+                            painter = painterResource(id = R.drawable.thankyou),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(vertical = 16.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.credits_fran),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+
+                        Image(
+                            painter = painterResource(id = R.drawable.speaking),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(vertical = 16.dp)
+                        )
+
+                        Text(
+                            text = stringResource(R.string.credits_ana),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+
+                        Image(
+                            painter = painterResource(id = R.drawable.rollerskate),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(vertical = 16.dp)
+                        )
+
+                        Text(
+                            text = stringResource(R.string.credits_ali),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+
+                        Image(
+                            painter = painterResource(id = R.drawable.unicorn),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(vertical = 16.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.credits_wife),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+
+                        Image(
+                            painter = painterResource(id = R.drawable.loveyourself),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(vertical = 16.dp)
+                        )
+
+                        // Aggiungo i crediti per le icone
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = stringResource(R.string.credits_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
+                        )
+
+                        Text(
+                            text = "Icons made by Freepik from www.flaticon.com",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(bottom = 24.dp)
+                        ) {
+                            Text(
+                                text = "Visit: ",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+
+                            Text(
+                                text = "www.freepik.com",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Cyan,
+                                modifier = Modifier.clickable {
+                                    val intent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        "https://www.freepik.com".toUri()
+                                    )
+                                    context.startActivity(intent)
+                                }
+                            )
+
+                            Text(
+                                text = " • ",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+
+                            Text(
+                                text = "www.flaticon.com",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Cyan,
+                                modifier = Modifier.clickable {
+                                    val intent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        "https://www.flaticon.com".toUri()
+                                    )
+                                    context.startActivity(intent)
+                                }
+                            )
+                        }
+
+                        Text(
+                            text = stringResource(R.string.credits_copy),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 32.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(100.dp))
                         // Chiudi
                         Button(
                             onClick = onDismiss,
