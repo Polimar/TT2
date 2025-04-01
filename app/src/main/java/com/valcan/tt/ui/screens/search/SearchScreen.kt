@@ -56,13 +56,46 @@ fun SearchScreen(
         SEASON_WINTER to stringResource(R.string.search_winter)
     )
     
-    // Ora usiamo queste etichette costanti per lo stato
-    var selectedTypeLabel by remember { mutableStateOf(TYPE_ALL) }
-    var selectedSeasonLabel by remember { mutableStateOf(SEASON_ALL) }
+    // Stati per i filtri
+    var selectedType by remember { mutableStateOf(TYPE_ALL) }
+    var selectedSeason by remember { mutableStateOf(SEASON_ALL) }
     var searchQuery by remember { mutableStateOf("") }
     var showDetailDialog by remember { mutableStateOf<SearchItem?>(null) }
     
+    // Testi localizzati per i filtri
+    val searchAllText = stringResource(R.string.search_all)
+    val searchAllSeasonsText = stringResource(R.string.search_all_seasons)
+    
+    // Lista delle stagioni con etichette internazionali
+    val seasons = listOf(
+        SEASON_ALL to searchAllSeasonsText,
+        SEASON_SPRING to stringResource(R.string.season_spring),
+        SEASON_SUMMER to stringResource(R.string.season_summer),
+        SEASON_AUTUMN to stringResource(R.string.season_autumn),
+        SEASON_WINTER to stringResource(R.string.season_winter)
+    )
+    
+    // Lista dei tipi di vestiti
+    val types = listOf(
+        TYPE_ALL to searchAllText,
+        TYPE_CLOTHES to stringResource(R.string.search_clothes),
+        TYPE_SHOES to stringResource(R.string.search_shoes)
+    )
+    
     val searchResults by viewModel.searchResults.collectAsState()
+    
+    // Filtri per tipo e stagione
+    val filteredResults = searchResults.filter { item ->
+        val matchesType = selectedType == TYPE_ALL || 
+            (selectedType == TYPE_SHOES && item.type == TYPE_SHOES) ||
+            (selectedType == TYPE_CLOTHES && item.type == TYPE_CLOTHES)
+        
+        val matchesSeason = selectedSeason == SEASON_ALL ||
+            item.season?.contains(selectedSeason, ignoreCase = true) == true ||
+            item.season?.contains("tutte le stagioni", ignoreCase = true) == true
+        
+        matchesType && matchesSeason
+    }
     
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -98,15 +131,15 @@ fun SearchScreen(
             FilterSection(
                 typeMap = typeMap,
                 seasonMap = seasonMap,
-                selectedTypeLabel = selectedTypeLabel,
+                selectedTypeLabel = selectedType,
                 onTypeSelected = { typeLabel -> 
-                    selectedTypeLabel = typeLabel
-                    viewModel.updateFilters(typeLabel, selectedSeasonLabel)
+                    selectedType = typeLabel
+                    viewModel.updateFilters(typeLabel, selectedSeason)
                 },
-                selectedSeasonLabel = selectedSeasonLabel,
+                selectedSeasonLabel = selectedSeason,
                 onSeasonSelected = { seasonLabel -> 
-                    selectedSeasonLabel = seasonLabel
-                    viewModel.updateFilters(selectedTypeLabel, seasonLabel)
+                    selectedSeason = seasonLabel
+                    viewModel.updateFilters(selectedType, seasonLabel)
                 }
             )
 
@@ -117,7 +150,7 @@ fun SearchScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(searchResults) { item ->
+                items(filteredResults) { item ->
                     SearchResultItem(
                         item = item,
                         typeMap = typeMap,

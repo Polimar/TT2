@@ -72,22 +72,14 @@ class SearchViewModel @Inject constructor(
         val results = mutableListOf<SearchItem>()
         val wardrobeMap = wardrobes.associateBy { wardrobe -> wardrobe.wardrobeId }
 
-        // Mappa delle stagioni per la ricerca nel database
-        val seasonDbMap = mapOf(
-            SEASON_SPRING to "primavera",
-            SEASON_SUMMER to "estate",
-            SEASON_AUTUMN to "autunno",
-            SEASON_WINTER to "inverno"
-        )
-        
-        val seasonToSearch = if (season == SEASON_ALL) null else seasonDbMap[season]
-
         // Filtra vestiti
         if (type == TYPE_ALL || type == TYPE_CLOTHES) {
             clothes.filter { cloth ->
                 cloth.userId == user.userId &&
                 (query.isEmpty() || cloth.name.contains(query, ignoreCase = true)) &&
-                (seasonToSearch == null || cloth.season?.contains(seasonToSearch, ignoreCase = true) == true || cloth.season?.contains("tutte le stagioni", ignoreCase = true) == true)
+                (season == SEASON_ALL || 
+                 cloth.season?.contains(season, ignoreCase = true) == true || 
+                 cloth.season?.contains("tutte le stagioni", ignoreCase = true) == true)
             }.mapTo(results) { cloth ->
                 SearchItem(
                     id = cloth.id,
@@ -107,7 +99,9 @@ class SearchViewModel @Inject constructor(
             shoes.filter { shoe ->
                 shoe.userId == user.userId &&
                 (query.isEmpty() || shoe.name.contains(query, ignoreCase = true)) &&
-                (seasonToSearch == null || shoe.season?.contains(seasonToSearch, ignoreCase = true) == true || shoe.season?.contains("tutte le stagioni", ignoreCase = true) == true)
+                (season == SEASON_ALL || 
+                 shoe.season?.contains(season, ignoreCase = true) == true || 
+                 shoe.season?.contains("tutte le stagioni", ignoreCase = true) == true)
             }.mapTo(results) { shoe ->
                 SearchItem(
                     id = shoe.id,
