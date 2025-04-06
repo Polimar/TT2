@@ -26,16 +26,7 @@ import com.valcan.tt.R
 import com.valcan.tt.ui.screens.clothes.DetailRow
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import com.valcan.tt.ui.screens.search.TYPE_ALL
-import com.valcan.tt.ui.screens.search.TYPE_CLOTHES
-import com.valcan.tt.ui.screens.search.TYPE_SHOES
-import com.valcan.tt.ui.screens.search.SEASON_ALL
-import com.valcan.tt.ui.screens.search.SEASON_SPRING
-import com.valcan.tt.ui.screens.search.SEASON_SUMMER
-import com.valcan.tt.ui.screens.search.SEASON_AUTUMN
-import com.valcan.tt.ui.screens.search.SEASON_WINTER
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     @Suppress("UNUSED_PARAMETER") navController: NavController,
@@ -62,27 +53,13 @@ fun SearchScreen(
     var searchQuery by remember { mutableStateOf("") }
     var showDetailDialog by remember { mutableStateOf<SearchItem?>(null) }
     
-    // Testi localizzati per i filtri
-    val searchAllText = stringResource(R.string.search_all)
-    val searchAllSeasonsText = stringResource(R.string.search_all_seasons)
+
+
     
-    // Lista delle stagioni con etichette internazionali
-    val seasons = listOf(
-        SEASON_ALL to searchAllSeasonsText,
-        SEASON_SPRING to stringResource(R.string.season_spring),
-        SEASON_SUMMER to stringResource(R.string.season_summer),
-        SEASON_AUTUMN to stringResource(R.string.season_autumn),
-        SEASON_WINTER to stringResource(R.string.season_winter)
-    )
-    
-    // Lista dei tipi di vestiti
-    val types = listOf(
-        TYPE_ALL to searchAllText,
-        TYPE_CLOTHES to stringResource(R.string.search_clothes),
-        TYPE_SHOES to stringResource(R.string.search_shoes)
-    )
-    
+
     val searchResults by viewModel.searchResults.collectAsState()
+    
+
     
     // Filtri per tipo e stagione
     val filteredResults = searchResults.filter { item ->
@@ -90,9 +67,8 @@ fun SearchScreen(
             (selectedType == TYPE_SHOES && item.type == TYPE_SHOES) ||
             (selectedType == TYPE_CLOTHES && item.type == TYPE_CLOTHES)
         
-        val matchesSeason = selectedSeason == SEASON_ALL ||
-            item.season?.contains(selectedSeason, ignoreCase = true) == true ||
-            item.season?.contains("tutte le stagioni", ignoreCase = true) == true
+        val matchesSeason = selectedSeason == SEASON_ALL || 
+            viewModel.matchesSeason(item.season, selectedSeason)
         
         matchesType && matchesSeason
     }
@@ -165,7 +141,6 @@ fun SearchScreen(
     showDetailDialog?.let {
         ItemDetailDialog(
             item = it,
-            typeMap = typeMap,
             onDismiss = { showDetailDialog = null }
         )
     }
@@ -297,11 +272,9 @@ fun SearchResultItem(
 @Composable
 fun ItemDetailDialog(
     item: SearchItem,
-    typeMap: Map<String, String>,
     onDismiss: () -> Unit
 ) {
     val wardrobeName = item.wardrobeName ?: stringResource(R.string.clothes_wardrobe_none)
-    val clothesTypeText = stringResource(R.string.search_clothes)
 
     AlertDialog(
         onDismissRequest = onDismiss,
