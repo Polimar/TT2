@@ -50,23 +50,23 @@ fun BackupSelectionDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(8.dp)
                     .fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(R.string.backup_restore),
-                    fontSize = 20.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
                 Text(
                     text = stringResource(R.string.backup_created_at, dateFormat.format(backupInfo.createdAt)),
-                    fontSize = 14.sp,
+                    fontSize = 10.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
@@ -78,7 +78,7 @@ fun BackupSelectionDialog(
                         backupInfo.clothesCount, 
                         backupInfo.shoesCount
                     ),
-                    fontSize = 14.sp,
+                    fontSize = 10.sp,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 
@@ -86,7 +86,7 @@ fun BackupSelectionDialog(
                 Text(
                     text = stringResource(R.string.backup_select_users),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -100,7 +100,7 @@ fun BackupSelectionDialog(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
+                        .height(100.dp)
                 ) {
                     items(backupInfo.users) { user ->
                         UserSelectionItem(
@@ -117,7 +117,7 @@ fun BackupSelectionDialog(
                 Text(
                     text = stringResource(R.string.backup_select_data_types),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
                 )
                 
                 Row(
@@ -164,7 +164,7 @@ fun BackupSelectionDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
+                        .padding(top = 12.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismissRequest) {

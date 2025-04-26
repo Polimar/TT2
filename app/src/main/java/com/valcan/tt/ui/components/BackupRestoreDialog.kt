@@ -114,7 +114,7 @@ fun BackupRestoreDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp)
-                        .padding(16.dp),
+                        .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     when (selectedTab) {
@@ -125,7 +125,7 @@ fun BackupRestoreDialog(
                             ) {
                                 Text(
                                     text = stringResource(R.string.backup_create),
-                                    modifier = Modifier.padding(bottom = 16.dp)
+                                    modifier = Modifier.padding(bottom = 12.dp)
                                 )
                                 Button(
                                     onClick = {
@@ -143,7 +143,7 @@ fun BackupRestoreDialog(
                             ) {
                                 Text(
                                     text = stringResource(R.string.backup_restore),
-                                    modifier = Modifier.padding(bottom = 16.dp)
+                                    modifier = Modifier.padding(bottom = 12.dp)
                                 )
                                 Button(
                                     onClick = {
