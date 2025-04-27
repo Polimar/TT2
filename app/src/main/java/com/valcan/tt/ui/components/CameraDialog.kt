@@ -108,7 +108,9 @@ fun CameraPreview(
         )
         
         IconButton(
-            modifier = Modifier.padding(bottom = 20.dp),
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .size(56.dp),
             onClick = {
                 val file = File(
                     context.getOutputDirectory(),
@@ -138,6 +140,7 @@ fun CameraPreview(
             Image(
                 painter = painterResource(id = R.drawable.photo),
                 contentDescription = "Scatta foto",
+                modifier = Modifier.size(40.dp)
             )
         }
     }

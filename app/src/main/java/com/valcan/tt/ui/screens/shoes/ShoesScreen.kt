@@ -467,16 +467,24 @@ fun ShoeDialog(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        IconButton(onClick = { showCamera = true }) {
+                        IconButton(
+                            onClick = { showCamera = true },
+                            modifier = Modifier.size(48.dp)
+                        ) {
                             Image(
                                 painter = painterResource(id = R.drawable.photo),
-                                contentDescription = null
+                                contentDescription = null,
+                                modifier = Modifier.size(36.dp)
                             )
                         }
-                        IconButton(onClick = { galleryLauncher() }) {
+                        IconButton(
+                            onClick = { galleryLauncher() },
+                            modifier = Modifier.size(48.dp)
+                        ) {
                             Image(
                                 painter = painterResource(id = R.drawable.gallery_photo),
-                                contentDescription = null
+                                contentDescription = null,
+                                modifier = Modifier.size(36.dp)
                             )
                         }
                     }
