@@ -80,10 +80,12 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Statistiche vestiti e scarpe in colonna
-                Column(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                    //horizontalAlignment = Alignment.CenterHorizontally,
+                    //verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // Card vestiti
                     HomeStatCard(
@@ -92,7 +94,7 @@ fun HomeScreen(
                         title = stringResource(R.string.nav_clothes),
                         onClick = { navController.navigate(Screen.Clothes.route) }
                     )
-                    
+                    Spacer(modifier = Modifier.width(24.dp))
                     // Card scarpe
                     HomeStatCard(
                         icon = R.drawable.ic_shoes_kawaii,
@@ -129,14 +131,14 @@ fun HomeStatCard(
 ) {
     Box(
         modifier = Modifier
-            .size(180.dp)
+            .size(120.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -144,16 +146,16 @@ fun HomeStatCard(
             Image(
                 painter = painterResource(id = icon),
                 contentDescription = title,
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier.size(24.dp)
             )
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             
             // Conteggio
             Text(
                 text = count.toString(),
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraLight,
                 color = MaterialTheme.colorScheme.primary
             )
             
