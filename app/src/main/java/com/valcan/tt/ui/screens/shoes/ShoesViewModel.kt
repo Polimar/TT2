@@ -1,5 +1,6 @@
 package com.valcan.tt.ui.screens.shoes
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.valcan.tt.data.model.Shoes
@@ -27,6 +28,10 @@ class ShoesViewModel @Inject constructor(
     // Gestione dei tipi
     private val _types = MutableStateFlow<List<String>>(emptyList())
     val types = _types.asStateFlow()
+
+    // Gestione dell'immagine dalla galleria
+    private val _selectedImageUri = MutableStateFlow<Uri?>(null)
+    val selectedImageUri = _selectedImageUri.asStateFlow()
 
     init {
         // Carica i tipi esistenti dalle scarpe
@@ -109,5 +114,15 @@ class ShoesViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    fun pickImageFromGallery() {
+        // Questo metodo verrà chiamato quando l'utente clicca sull'icona della galleria
+        // L'implementazione reale avverrà tramite un Content Resolver o Intent nel componente UI
+        // qui settiamo solo uno stato per comunicare l'intenzione
+    }
+    
+    fun setSelectedImageUri(uri: Uri?) {
+        _selectedImageUri.value = uri
     }
 } 

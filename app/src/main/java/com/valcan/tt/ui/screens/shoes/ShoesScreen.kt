@@ -33,6 +33,7 @@ import com.valcan.tt.ui.screens.search.SEASON_SUMMER
 import com.valcan.tt.ui.screens.search.SEASON_AUTUMN
 import com.valcan.tt.ui.screens.search.SEASON_WINTER
 import com.valcan.tt.ui.screens.search.SEASON_ALL
+import com.valcan.tt.ui.components.rememberGalleryLauncher
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -422,6 +423,12 @@ fun ShoeDialog(
     
     val scrollState = rememberScrollState()
 
+    // Launcher per la galleria
+    val galleryLauncher = rememberGalleryLauncher { uri ->
+        imageUrl = uri.toString()
+        viewModel.setSelectedImageUri(uri)
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -456,14 +463,22 @@ fun ShoeDialog(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    IconButton(
-                        onClick = { showCamera = true },
-                        modifier = Modifier.align(Alignment.Center)
+                    Row(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.photo),
-                            contentDescription = null
-                        )
+                        IconButton(onClick = { showCamera = true }) {
+                            Image(
+                                painter = painterResource(id = R.drawable.photo),
+                                contentDescription = null
+                            )
+                        }
+                        IconButton(onClick = { galleryLauncher() }) {
+                            Image(
+                                painter = painterResource(id = R.drawable.gallery_photo),
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
 
@@ -660,6 +675,15 @@ fun ShoeDialog(
             },
             onDismiss = { showCamera = false }
         )
+    }
+    
+    // Osserva l'URI dell'immagine selezionata dalla galleria
+    LaunchedEffect(Unit) {
+        viewModel.selectedImageUri.collect { uri ->
+            uri?.let {
+                imageUrl = it.toString()
+            }
+        }
     }
 }
 

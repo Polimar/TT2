@@ -1,5 +1,6 @@
 package com.valcan.tt.ui.screens.clothes
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.valcan.tt.data.model.Clothes
@@ -27,6 +28,10 @@ class ClothesViewModel @Inject constructor(
     // Gestione delle categorie
     private val _categories = MutableStateFlow<List<String>>(emptyList())
     val categories = _categories.asStateFlow()
+
+    // Gestione dell'immagine dalla galleria
+    private val _selectedImageUri = MutableStateFlow<Uri?>(null)
+    val selectedImageUri = _selectedImageUri.asStateFlow()
 
     init {
         // Carica le categorie esistenti dai vestiti
@@ -109,5 +114,15 @@ class ClothesViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    fun pickImageFromGallery() {
+        // Questo metodo verrà chiamato quando l'utente clicca sull'icona della galleria
+        // L'implementazione reale avverrà tramite un Content Resolver o Intent nel componente UI
+        // qui settiamo solo uno stato per comunicare l'intenzione
+    }
+    
+    fun setSelectedImageUri(uri: Uri?) {
+        _selectedImageUri.value = uri
     }
 } 
