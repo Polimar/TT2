@@ -415,7 +415,20 @@ fun ClothDialog(
     val seasonLabels = listOf(SEASON_SPRING, SEASON_SUMMER, SEASON_AUTUMN, SEASON_WINTER, SEASON_ALL)
     
     val scrollState = rememberScrollState()
+    
+    // Resettiamo l'URI dell'immagine selezionata quando il dialog viene aperto
+    // Se abbiamo un'immagine iniziale, la impostiamo nel ViewModel
+    LaunchedEffect(key1 = initialImageUrl) {
+        if (initialImageUrl != null) {
+            // Per la modifica: imposta l'URI solo se c'è un'immagine iniziale
+            imageUrl = initialImageUrl
+        } else {
+            // Per nuovo inserimento: resettiamo l'URI
+            viewModel.resetSelectedImageUri()
+        }
+    }
 
+    // Aggiorna il wardrobeId se è null
     LaunchedEffect(wardrobes) {
         val lastWardrobe = wardrobes.maxByOrNull { it.wardrobeId }
         if (lastWardrobe != null && wardrobeId == null) {

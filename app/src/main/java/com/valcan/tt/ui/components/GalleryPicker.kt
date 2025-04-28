@@ -3,6 +3,7 @@ package com.valcan.tt.ui.components
 import android.Manifest
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
@@ -19,21 +20,21 @@ fun rememberGalleryLauncher(
 ): () -> Unit {
     val context = LocalContext.current
     
+    // Determina quale permesso richiedere in base alla versione di Android
+    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+    
     var hasStoragePermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                permission
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         )
     }
-    
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { granted ->
-            hasStoragePermission = granted
-        }
-    )
     
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -42,11 +43,21 @@ fun rememberGalleryLauncher(
         }
     )
     
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            hasStoragePermission = granted
+            if (granted) {
+                galleryLauncher.launch("image/*")
+            }
+        }
+    )
+    
     return {
         if (hasStoragePermission) {
             galleryLauncher.launch("image/*")
         } else {
-            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            permissionLauncher.launch(permission)
         }
     }
 } 

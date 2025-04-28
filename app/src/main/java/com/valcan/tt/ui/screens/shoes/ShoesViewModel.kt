@@ -125,4 +125,8 @@ class ShoesViewModel @Inject constructor(
     fun setSelectedImageUri(uri: Uri?) {
         _selectedImageUri.value = uri
     }
+    
+    fun resetSelectedImageUri() {
+        _selectedImageUri.value = null
+    }
 } 
