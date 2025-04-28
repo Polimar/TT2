@@ -296,13 +296,13 @@ fun ProfileUserSelectionDialog(
                     onClick = { onUserSelected(user) }
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_check_kawaii),
                             contentDescription = null,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                         Text(stringResource(R.string.action_confirm))
                     }
@@ -669,7 +669,7 @@ fun CreditsDialog(onDismiss: () -> Unit) {
                             Text(
                                 text = "www.freepik.com",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Cyan,
+                                color = Color.White,
                                 modifier = Modifier.clickable {
                                     val intent = Intent(
                                         Intent.ACTION_VIEW,
@@ -688,7 +688,7 @@ fun CreditsDialog(onDismiss: () -> Unit) {
                             Text(
                                 text = "www.flaticon.com",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Cyan,
+                                color = Color.White,
                                 modifier = Modifier.clickable {
                                     val intent = Intent(
                                         Intent.ACTION_VIEW,
@@ -842,10 +842,10 @@ fun LanguageButton(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterEnd
                 ) {
-                    Icon(
+                    Image(
                         painter = painterResource(id = R.drawable.ic_check_kawaii),
                         contentDescription = stringResource(R.string.profile_selected),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             }

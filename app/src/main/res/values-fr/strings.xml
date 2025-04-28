@@ -33,7 +33,7 @@
     
     <!-- Search Screen -->
     <string name="search_title">Recherche</string>
-    <string name="search_placeholder">Rechercher par nom...</string>
+    <string name="search_placeholder">Rechercher par nom, couleur ou catégorie...</string>
     <string name="search_type">Type</string>
     <string name="search_all">Tous</string>
     <string name="search_clothes">Vêtements</string>

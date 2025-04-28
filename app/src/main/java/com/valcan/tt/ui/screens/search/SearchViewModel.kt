@@ -140,7 +140,10 @@ class SearchViewModel @Inject constructor(
         if (type == TYPE_ALL || type == TYPE_CLOTHES) {
             clothes.filter { cloth ->
                 cloth.userId == user.userId &&
-                (query.isEmpty() || cloth.name.contains(query, ignoreCase = true)) &&
+                (query.isEmpty() || 
+                 cloth.name.contains(query, ignoreCase = true) ||
+                 cloth.category.contains(query, ignoreCase = true) ||
+                 cloth.color.contains(query, ignoreCase = true)) &&
                 (season == SEASON_ALL ||
                  matchesSeason(cloth.season, season))
             }.mapTo(results) { cloth ->
@@ -161,7 +164,10 @@ class SearchViewModel @Inject constructor(
         if (type == TYPE_ALL || type == TYPE_SHOES) {
             shoes.filter { shoe ->
                 shoe.userId == user.userId &&
-                (query.isEmpty() || shoe.name.contains(query, ignoreCase = true)) &&
+                (query.isEmpty() || 
+                 shoe.name.contains(query, ignoreCase = true) ||
+                 (shoe.type?.contains(query, ignoreCase = true) ?: false) ||
+                 (shoe.color?.contains(query, ignoreCase = true) ?: false)) &&
                 (season == SEASON_ALL ||
                  matchesSeason(shoe.season, season))
             }.mapTo(results) { shoe ->

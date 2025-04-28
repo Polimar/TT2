@@ -334,6 +334,9 @@ fun ClothItem(
                         DetailRow(label = stringResource(R.string.clothes_color), value = cloth.color)
                         DetailRow(label = stringResource(R.string.clothes_season), value = cloth.season)
                         DetailRow(label = stringResource(R.string.clothes_wardrobe), value = wardrobeName)
+                        if (cloth.position.isNotBlank()) {
+                            DetailRow(label = stringResource(R.string.clothes_position), value = cloth.position)
+                        }
                     }
                 }
             },

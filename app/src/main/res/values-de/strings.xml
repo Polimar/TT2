@@ -34,7 +34,7 @@
     
     <!-- Search Screen -->
     <string name="search_title">Suche</string>
-    <string name="search_placeholder">Nach Namen suchen...</string>
+    <string name="search_placeholder">Nach Namen, Farbe oder Kategorie suchen...</string>
     <string name="search_type">Typ</string>
     <string name="search_all">Alle</string>
     <string name="search_clothes">Kleidung</string>
