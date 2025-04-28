@@ -147,14 +147,15 @@ fun CameraPreview(
 }
 
 private suspend fun Context.getCameraProvider(): ProcessCameraProvider = suspendCoroutine { continuation ->
-    ProcessCameraProvider.getInstance(this).also { future ->
-        future.addListener(
-            {
-                continuation.resume(future.get())
-            },
-            executor
-        )
-    }
+    val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+    cameraProviderFuture.addListener({
+        try {
+            val provider = cameraProviderFuture.get()
+            continuation.resume(provider)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }, ContextCompat.getMainExecutor(this))
 }
 
 private val Context.executor: Executor

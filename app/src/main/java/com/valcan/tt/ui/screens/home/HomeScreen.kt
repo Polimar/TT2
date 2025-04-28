@@ -28,6 +28,7 @@ import com.valcan.tt.ui.theme.Typography
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.valcan.tt.ui.viewmodel.HomeViewModel
 import com.valcan.tt.ui.navigation.Screen
+import com.valcan.tt.ui.components.NativeAdComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,6 +119,12 @@ fun HomeScreen(
                     Text(stringResource(R.string.home_go_to_profile))
                 }
             }
+            
+            // Aggiungi spazio prima dell'annuncio
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Annuncio nativo
+            NativeAdComponent(adUnitId = "ca-app-pub-8145977851051737/4593816705")
         }
     }
 }

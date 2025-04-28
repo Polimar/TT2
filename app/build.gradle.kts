@@ -127,4 +127,10 @@ dependencies {
     
     // Preferenze per il supporto multilingua
     implementation("androidx.preference:preference-ktx:1.2.1")
+
+    // AdMob - Google Mobile Ads
+    implementation("com.google.android.gms:play-services-ads:22.6.0")
+    
+    // Guava - per supportare ListenableFuture
+    implementation("com.google.guava:guava:32.1.3-android")
 }
