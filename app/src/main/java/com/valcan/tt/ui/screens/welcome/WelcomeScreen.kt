@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,9 +27,7 @@ import com.valcan.tt.ui.components.KawaiiDatePicker
 import com.valcan.tt.ui.components.KawaiiButton
 import java.util.Date
 
-var isDateSelected: Boolean = false
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(
     navController: NavController,
@@ -262,7 +259,6 @@ fun NewUserDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserSelectionDialog(
     users: List<User>,

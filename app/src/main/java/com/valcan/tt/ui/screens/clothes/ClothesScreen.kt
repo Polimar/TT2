@@ -35,7 +35,6 @@ import com.valcan.tt.ui.screens.search.SEASON_WINTER
 import com.valcan.tt.ui.screens.search.SEASON_ALL
 import com.valcan.tt.ui.components.rememberGalleryLauncher
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClothesScreen(
     @Suppress("UNUSED_PARAMETER") navController: NavController,
@@ -715,7 +714,7 @@ fun ClothDialog(
                     if (name.isBlank() || wardrobeId == null) {
                         showError = true
                     } else {
-                        val confirmedSeason = if (season.isBlank()) SEASON_ALL else season
+                        val confirmedSeason = season.ifBlank { SEASON_ALL }
                         
                         if (category.isNotBlank() && !categories.contains(category)) {
                             viewModel.addCategory(category)

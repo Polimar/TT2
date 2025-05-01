@@ -327,6 +327,10 @@ fun ItemDetailDialog(
                     DetailRow(label = stringResource(R.string.clothes_color), value = item.color ?: "-")
                     DetailRow(label = stringResource(R.string.clothes_season), value = item.season ?: "-")
                     DetailRow(label = stringResource(R.string.clothes_wardrobe), value = wardrobeName)
+                    // Aggiungi la posizione se presente (solo per i vestiti)
+                    if (item.type == "clothes" && item.position != null && item.position.isNotBlank()) {
+                        DetailRow(label = stringResource(R.string.clothes_position), value = item.position)
+                    }
                 }
             }
         },

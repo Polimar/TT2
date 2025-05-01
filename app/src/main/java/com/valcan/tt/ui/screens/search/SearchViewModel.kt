@@ -58,7 +58,8 @@ data class SearchItem(
     val color: String?,
     val season: String?,
     val wardrobeName: String?,
-    val category: String?
+    val category: String?,
+    val position: String? = null
 )
 
 @OptIn(kotlinx.coroutines.FlowPreview::class)
@@ -155,7 +156,8 @@ class SearchViewModel @Inject constructor(
                     color = cloth.color,
                     season = cloth.season,
                     wardrobeName = cloth.wardrobeId?.let { wardrobeId -> wardrobeMap[wardrobeId]?.name },
-                    category = cloth.category
+                    category = cloth.category,
+                    position = cloth.position
                 )
             }
         }
@@ -179,7 +181,8 @@ class SearchViewModel @Inject constructor(
                     color = shoe.color,
                     season = shoe.season,
                     wardrobeName = shoe.wardrobeId?.let { wardrobeId -> wardrobeMap[wardrobeId]?.name },
-                    category = shoe.type
+                    category = shoe.type,
+                    position = null // Le scarpe non hanno un campo posizione
                 )
             }
         }

@@ -5,33 +5,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.valcan.tt.R
-import com.valcan.tt.data.repository.UserRepository
-import com.valcan.tt.data.repository.ClothesRepository
-import com.valcan.tt.data.repository.ShoesRepository
-import com.valcan.tt.ui.components.TTBottomNavigation
-import com.valcan.tt.ui.theme.Typography
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.valcan.tt.ui.viewmodel.HomeViewModel
 import com.valcan.tt.ui.navigation.Screen
 import com.valcan.tt.ui.components.NativeAdComponent
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
