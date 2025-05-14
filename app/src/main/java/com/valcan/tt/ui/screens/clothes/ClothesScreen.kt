@@ -95,7 +95,7 @@ fun ClothesScreen(
             onClick = { showAddDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(end = 60.dp, bottom = 16.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_add_kawaii),

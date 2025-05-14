@@ -97,7 +97,7 @@ fun ShoesScreen(
             onClick = { showAddDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(end = 60.dp, bottom = 16.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_add_kawaii),
@@ -408,9 +408,6 @@ fun ShoeDialog(
     
     var expandedSeason by remember { mutableStateOf(false) }
     var expandedWardrobe by remember { mutableStateOf(false) }
-    var expandedCategory by remember { mutableStateOf(false) }
-    val types by viewModel.types.collectAsState()
-    var showCategoryDeleteConfirmation by remember { mutableStateOf<String?>(null) }
     
     // Mappatura tra etichette costanti e testi localizzati
     val seasonMap = mapOf(

@@ -67,85 +67,112 @@ fun ProfileScreen(
     }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        // Calcoliamo lo spazio disponibile per la griglia dopo aver rimosso i padding e il titolo
-        // Questo ci aiuterà a determinare quanto spazio abbiamo a disposizione
-        val availableHeight = maxHeight - 120.dp  // Spazio stimato per titolo e padding
-        // Calcoliamo lo spazio tra gli elementi in base all'altezza disponibile
-        // Più piccolo è lo schermo, minore sarà lo spazio tra gli elementi
-        val adaptiveSpacing = (availableHeight * 0.02f).coerceAtMost(12.dp).coerceAtLeast(4.dp)
+        val maxScreenWidth = maxWidth
         
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 2.dp, vertical = 2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Titolo
             Text(
                 text = stringResource(id = R.string.profile_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            // Griglia di impostazioni - dimensione adattiva
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-               // horizontalArrangement = Arrangement.spacedBy(adaptiveSpacing * 0.5f),
-                //verticalArrangement = Arrangement.spacedBy(adaptiveSpacing * 0.5f),
-                contentPadding = PaddingValues(bottom = 4.dp),
+            // Invece della griglia, usiamo un layout di righe e colonne
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = true)
+                    .weight(1f),
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                items(7) { index ->
-                    when (index) {
-                        0 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_users_kawaii,
-                            contentDescription = stringResource(id = R.string.profile_select_users),
-                            onClick = { showUserSelectionDialog = true }
-                        )
-                        1 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_wardrobe_kawaii,
-                            contentDescription = stringResource(id = R.string.profile_wardrobes),
-                            onClick = { navController.navigate(Screen.Wardrobe.route) }
-                        )
-                        2 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_add_male_kawaii,
-                            contentDescription = stringResource(id = R.string.profile_new_user_male),
-                            onClick = { 
-                                preselectedGender = "M"
-                                showNewUserDialog = true
-                            }
-                        )
-                        3 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_add_female_kawaii,
-                            contentDescription = stringResource(id = R.string.profile_new_user_female),
-                            onClick = { 
-                                preselectedGender = "F"
-                                showNewUserDialog = true
-                            }
-                        )
-                        4 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_backup_kawaii,
-                            contentDescription = stringResource(id = R.string.profile_backup),
-                            onClick = { showBackupDialog = true }
-                        )
-                        5 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_languages,
-                            contentDescription = stringResource(id = R.string.profile_languages),
-                            onClick = { showLanguageDialog = true }
-                        )
-                        6 -> AdaptiveSettingButton(
-                            icon = R.drawable.ic_info_kawaii,
-                            contentDescription = stringResource(id = R.string.profile_info),
-                            onClick = { showCreditsDialog = true }
-                        )
-                    }
+                // Prima riga: 2 icone
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    FixedSettingButton(
+                        icon = R.drawable.ic_users_kawaii,
+                        contentDescription = stringResource(id = R.string.profile_select_users),
+                        onClick = { showUserSelectionDialog = true },
+                        screenWidth = maxScreenWidth
+                    )
+                    
+                    FixedSettingButton(
+                        icon = R.drawable.ic_wardrobe_kawaii,
+                        contentDescription = stringResource(id = R.string.profile_wardrobes),
+                        onClick = { navController.navigate(Screen.Wardrobe.route) },
+                        screenWidth = maxScreenWidth
+                    )
+                }
+                
+                // Seconda riga: 2 icone
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    FixedSettingButton(
+                        icon = R.drawable.ic_add_male_kawaii,
+                        contentDescription = stringResource(id = R.string.profile_new_user_male),
+                        onClick = { 
+                            preselectedGender = "M"
+                            showNewUserDialog = true
+                        },
+                        screenWidth = maxScreenWidth
+                    )
+                    
+                    FixedSettingButton(
+                        icon = R.drawable.ic_add_female_kawaii,
+                        contentDescription = stringResource(id = R.string.profile_new_user_female),
+                        onClick = { 
+                            preselectedGender = "F"
+                            showNewUserDialog = true
+                        },
+                        screenWidth = maxScreenWidth
+                    )
+                }
+                
+                // Terza riga: 2 icone
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    FixedSettingButton(
+                        icon = R.drawable.ic_backup_kawaii,
+                        contentDescription = stringResource(id = R.string.profile_backup),
+                        onClick = { showBackupDialog = true },
+                        screenWidth = maxScreenWidth
+                    )
+                    
+                    FixedSettingButton(
+                        icon = R.drawable.ic_languages,
+                        contentDescription = stringResource(id = R.string.profile_languages),
+                        onClick = { showLanguageDialog = true },
+                        screenWidth = maxScreenWidth
+                    )
+                }
+                
+                // Quarta riga: 1 icona centrale
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    FixedSettingButton(
+                        icon = R.drawable.ic_info_kawaii,
+                        contentDescription = stringResource(id = R.string.profile_info),
+                        onClick = { showCreditsDialog = true },
+                        screenWidth = maxScreenWidth
+                    )
                 }
             }
+            
+            // Spazio per la bottom bar
+            Spacer(modifier = Modifier.height(2.dp))
         }
     }
 
@@ -225,25 +252,25 @@ fun ProfileScreen(
 }
 
 @Composable
-fun AdaptiveSettingButton(
+fun FixedSettingButton(
     icon: Int,
     contentDescription: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    screenWidth: androidx.compose.ui.unit.Dp
 ) {
-    // Utilizziamo BoxWithConstraints per rendere l'icona adattabile
-    BoxWithConstraints(
+    // Calcoliamo la dimensione dell'icona in base alla larghezza dello schermo
+    val buttonSize = (screenWidth / 2.5f).coerceAtMost(110.dp)
+    val iconSize = buttonSize * 0.9f
+    
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .aspectRatio(1f) // Manteniamo il rapporto 1:1 per la card
+            .size(buttonSize)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
             .padding(4.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Calcoliamo la dimensione dell'icona come percentuale della larghezza disponibile
-        val iconSize = maxWidth * 0.6f
-        
         Image(
             painter = painterResource(id = icon),
             contentDescription = contentDescription,
